@@ -6,8 +6,11 @@ import com.solvd.dice.web.page.DiceAbstractPage;
 import com.solvd.dice.web.page.SearchPage;
 import com.solvd.dice.web.page.ShoppingCartPage;
 import com.solvd.dice.web.page.StorePage;
+import com.zebrunner.agent.core.annotation.TestCaseKey;
+import com.zebrunner.agent.core.registrar.TestCase;
 import com.zebrunner.carina.utils.R;
 import org.testng.Assert;
+import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
@@ -15,7 +18,15 @@ import java.util.List;
 
 public class WebDiceTest implements IAbstractTest {
 
+    @BeforeSuite
+    public void beforeTest() {
+        TestCase.setTestRunId("143");
+        TestCase.enableRealTimeSync();
+    }
+
+
     @Test()
+    @TestCaseKey({"TOHA-161"})
     public void redirectToShoppingCartPageTest() {
         DiceAbstractPage diceAbstractPage = new DiceAbstractPage(getDriver());
         diceAbstractPage.open();
@@ -29,6 +40,7 @@ public class WebDiceTest implements IAbstractTest {
     }
 
     @Test()
+    @TestCaseKey({"TOHA-162"})
     public void checkItemsInStoreTest() {
         DiceAbstractPage diceAbstractPage = new DiceAbstractPage(getDriver());
         diceAbstractPage.open();
@@ -44,6 +56,7 @@ public class WebDiceTest implements IAbstractTest {
     }
 
     @Test()
+    @TestCaseKey({"TOHA-163"})
     public void checkSearchItemsTest() {
         DiceAbstractPage diceAbstractPage = new DiceAbstractPage(getDriver());
         diceAbstractPage.open();
@@ -63,7 +76,8 @@ public class WebDiceTest implements IAbstractTest {
     }
 
     @Test()
-    public void redirectToSocialNetworksButtonsIsClickable(){
+    @TestCaseKey({"TOHA-164"})
+    public void redirectToSocialNetworksButtonsIsClickable() {
         DiceAbstractPage diceAbstractPage = new DiceAbstractPage(getDriver());
         diceAbstractPage.open();
         PopupSignUpForm popupSignUpForm = diceAbstractPage.getPopupSignUpForm();
