@@ -20,7 +20,7 @@ public class WebDiceTest implements IAbstractTest {
 
     @BeforeSuite
     public void beforeTest() {
-        TestCase.setTestRunId("143");
+        TestCase.setTestRunId("144");
         TestCase.enableRealTimeSync();
     }
 
