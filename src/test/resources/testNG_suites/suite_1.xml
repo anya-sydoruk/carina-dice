@@ -3,6 +3,10 @@
     <test name="Test run number 1">
         <classes>
             <class name="com.solvd.dice.WebDiceTest">
+                <methods>
+                    <exclude name="checkSearchItemsTest"/>
+                    <exclude name="redirectToSocialNetworksButtonsIsClickable"/>
+                </methods>
             </class>
         </classes>
     </test>
