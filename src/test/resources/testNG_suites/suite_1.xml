@@ -1,11 +1,16 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite verbose="1" name="Test suite 1" parallel="tests" thread-count="3">
+
+    <suite-files>
+            <suite-file path = "suite_2.xml"/>
+    </suite-files>
+
     <test name="Test run number 1">
         <classes>
             <class name="com.solvd.dice.WebDiceTest">
                 <methods>
-                    <exclude name="checkSearchItemsTest"/>
-                    <exclude name="redirectToSocialNetworksButtonsIsClickable"/>
+                    <exclude name="checkItemsInStoreTest"/>
+                    <exclude name="redirectToShoppingCartPageTest"/>
                 </methods>
             </class>
         </classes>
