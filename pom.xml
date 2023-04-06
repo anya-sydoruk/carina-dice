@@ -37,7 +37,7 @@
                 <version>3.0.0-M4</version>
                 <configuration>
                     <suiteXmlFiles>
-                        <suiteXmlFile>src/test/resources/testNG_suites/suite_1.xml</suiteXmlFile>
+                        <suiteXmlFile>src/test/resources/testNG_suites/${suite}.xml</suiteXmlFile>
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
