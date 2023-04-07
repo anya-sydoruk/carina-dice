@@ -1,6 +1,6 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd">
 <suite verbose="1" name="Test suite 2" parallel="tests" thread-count="3">
-    <test name="Test run number 2">
+    <test name="XML suite 2">
         <classes>
             <class name="com.solvd.dice.WebDiceTest">
                 <methods>
