@@ -1,4 +1,4 @@
-package com.solvd.dice;
+package com.solvd.dice.web;
 
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import com.solvd.dice.web.component.*;

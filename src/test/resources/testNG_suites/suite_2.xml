@@ -2,7 +2,7 @@
 <suite verbose="1" name="Test suite 2" parallel="tests" thread-count="3">
     <test name="XML suite 2">
         <classes>
-            <class name="com.solvd.dice.WebDiceTest">
+            <class name="com.solvd.dice.web.WebDiceTest">
                 <methods>
                     <exclude name="checkSearchItemsTest"/>
                     <exclude name="redirectToSocialNetworksButtonsIsClickable"/>
