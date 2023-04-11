@@ -10,6 +10,7 @@
 
     <properties>
         <carinaVersion>8.0.7</carinaVersion>
+        <carinaApiVersion>8.0.8</carinaApiVersion>
     </properties>
 
     <dependencies>
@@ -17,6 +18,11 @@
             <groupId>com.qaprosoft</groupId>
             <artifactId>carina-core</artifactId>
             <version>${carinaVersion}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.qaprosoft</groupId>
+            <artifactId>carina-api</artifactId>
+            <version>${carinaApiVersion}</version>
         </dependency>
     </dependencies>
 
