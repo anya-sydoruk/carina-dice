@@ -1,7 +1,8 @@
 package com.solvd.dice.api;
 
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
-import com.zebrunner.carina.api.http.HttpResponseStatusType;
+import io.restassured.response.ResponseBody;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class ApiTest implements IAbstractTest {
@@ -9,9 +10,10 @@ public class ApiTest implements IAbstractTest {
     @Test()
     public void testCreateToken() {
         GetTokenMethod api = new GetTokenMethod();
-        api.expectResponseStatus(HttpResponseStatusType.OK_200);
-        api.callAPI();
-        api.validateResponse();
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 200, "Incorrect response.");
+        ResponseBody body = api.callAPI().body();
+        String token = body.jsonPath().getString("authToken");
+        Assert.assertNotNull(token, "Token missing.");
     }
-
 }
