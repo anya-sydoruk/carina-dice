@@ -1,16 +1,13 @@
 package com.solvd.dice.api;
 
-import com.google.common.collect.Iterables;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
-import com.zebrunner.carina.api.http.HttpResponseStatusType;
-import io.restassured.path.json.JsonPath;
 import io.restassured.response.ResponseBody;
-import org.apache.commons.compress.utils.Lists;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import java.util.*;
-import java.util.stream.Collectors;
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
@@ -26,15 +23,19 @@ public class ApiTest implements IAbstractTest {
     }
 
     @Test()
-    public void testGetAllTestCases(){
+    public void testGetAllTestCases() throws JsonProcessingException {
         GetTestCasesMethod api = new GetTestCasesMethod();
         api.setToken(token);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 200, "Incorrect response.");
-        ResponseBody body = api.callAPI().body();
+        String bodyString = api.callAPI().body().asString();
 
-        JsonPath jsonPath = body.jsonPath().setRootPath("data.testSuites.childTestCases");
-        List<Integer> id = jsonPath.get("id");
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        TestSuites testSuites = mapper.readValue(bodyString, TestSuites.class);
+        System.out.println(testSuites);
+
+
 
     }
 }
