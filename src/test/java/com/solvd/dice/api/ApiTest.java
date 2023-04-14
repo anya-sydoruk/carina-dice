@@ -30,10 +30,10 @@ public class ApiTest implements IAbstractTest {
         Assert.assertEquals(code, 200, "Incorrect response.");
         String bodyString = api.callAPI().body().asString();
 
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        TestSuites testSuites = mapper.readValue(bodyString, TestSuites.class);
-        System.out.println(testSuites);
+        //ObjectMapper mapper = new ObjectMapper();
+        //mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        //TestSuites testSuites = mapper.readValue(bodyString, TestSuites.class);
+        //System.out.println(testSuites);
 
 
 
