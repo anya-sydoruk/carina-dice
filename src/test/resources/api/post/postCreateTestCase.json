@@ -1,0 +1,46 @@
+{
+  "title": "TestCaseName",
+  "testSuiteId": 3335,
+  "priority": {
+    "id": 447
+  },
+  "automationState": {
+    "id": 323
+  },
+  "description": "Description",
+  "draft": false,
+  "deprecated": false,
+  "preConditions": "Pre-conditions test",
+  "postConditions": "Post--conditions test",
+  "steps": [
+    {
+      "type": "REGULAR",
+      "relativePosition": 0,
+      "regularStep": {
+        "action": "Step1 - Open",
+        "expectedResult": "step1 - result",
+        "attachments": []
+      }
+    },
+    {
+      "type": "REGULAR",
+      "relativePosition": 1,
+      "regularStep": {
+        "action": "Step2 - Click",
+        "expectedResult": "step2 - result",
+        "attachments": []
+      }
+    },
+    {
+      "type": "REGULAR",
+      "regularStep": {
+        "action": "Step3 - Result",
+        "expectedResult": "step3 - result",
+        "attachments": []
+      },
+      "relativePosition": 2
+    }
+  ],
+  "attachments": [],
+  "customFields": []
+}

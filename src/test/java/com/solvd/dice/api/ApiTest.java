@@ -35,6 +35,13 @@ public class ApiTest implements IAbstractTest {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DataSuite dataSuite = mapper.readValue(bodyString, DataSuite.class);
         System.out.println(dataSuite);
+    }
 
+    @Test()
+    public void testCreateTestCase() {
+        CreateTestCaseMethod api = new CreateTestCaseMethod();
+        api.setToken(token);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 201, "Incorrect response");
     }
 }
