@@ -11,5 +11,4 @@ public class GetTestCasesMethod extends AbstractApiMethodV2 {
     public void setToken(String token){
         setHeaders("Authorization=Bearer " + token);
     }
-
 }

@@ -6,14 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import io.restassured.response.ResponseBody;
 import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
 
-    @Test()
-    public void testCreateToken() {
+    @BeforeMethod
+    public void createToken() {
         GetTokenMethod api = new GetTokenMethod();
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 200, "Incorrect response.");
