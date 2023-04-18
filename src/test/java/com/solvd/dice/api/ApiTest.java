@@ -9,6 +9,8 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
+
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
@@ -24,7 +26,7 @@ public class ApiTest implements IAbstractTest {
     }
 
     @Test()
-    public void testGetAllTestCases() throws JsonProcessingException {
+    public void testGetAllTestCases() throws IOException {
         GetTestCasesMethod api = new GetTestCasesMethod();
         api.setToken(token);
         int code = api.callAPI().getStatusCode();
@@ -35,7 +37,6 @@ public class ApiTest implements IAbstractTest {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DataSuite dataSuite = mapper.readValue(bodyString, DataSuite.class);
-        System.out.println(dataSuite);
     }
 
     @Test()
