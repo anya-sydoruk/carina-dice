@@ -2,6 +2,7 @@ package com.solvd.dice.api.testRailPojo;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonRootName;
 
 public final class TestRailCase {
     public final Long id;

@@ -3,8 +3,6 @@ package com.solvd.dice.api;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.util.List;
-
 public final class TestSuite {
     public final Long id;
     public final String title;
