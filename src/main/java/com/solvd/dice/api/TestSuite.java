@@ -14,4 +14,8 @@ public final class TestSuite {
         this.title = title;
         this.testCases = testCases;
     }
+
+    public TestCase getTestCases() {
+        return testCases;
+    }
 }

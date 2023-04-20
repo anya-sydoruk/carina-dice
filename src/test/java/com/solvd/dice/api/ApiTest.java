@@ -10,10 +10,12 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
+    List<TestCase> cases;
 
     @BeforeMethod
     public void createToken() {
@@ -37,6 +39,11 @@ public class ApiTest implements IAbstractTest {
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         DataSuite dataSuite = mapper.readValue(bodyString, DataSuite.class);
+
+
+        List<TestSuite> suites = List.of(dataSuite.getTest().getTestSuites());
+
+        System.out.println(cases);
     }
 
     @Test()

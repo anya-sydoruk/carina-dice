@@ -10,6 +10,8 @@ import java.util.List;
 
 public class ApiTestRailTest {
 
+    public String testCaseTitle;
+
     @Test()
     public void getTestCaseTitleTest() throws IOException {
         TestRail testRail = TestRail.builder("https://modiusqa.testrail.net",
@@ -18,7 +20,7 @@ public class ApiTestRailTest {
 
         List<CaseField> customCaseFields = testRail.caseFields().list().execute();
         Case testCase = testRail.cases().get(17, customCaseFields).execute();
-        String testCaseTitle = testCase.getTitle();
+        testCaseTitle = testCase.getTitle();
         Assert.assertNotNull(testCaseTitle, "Title is absent");
     }
 }

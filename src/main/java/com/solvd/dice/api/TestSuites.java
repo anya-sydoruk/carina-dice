@@ -10,4 +10,8 @@ public final class TestSuites {
     public TestSuites(@JsonProperty("testSuites") TestSuite[] testSuites) {
         this.testSuites = testSuites;
     }
+
+    public TestSuite[] getTestSuites() {
+        return testSuites;
+    }
 }

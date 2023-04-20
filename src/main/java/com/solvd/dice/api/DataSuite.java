@@ -11,4 +11,8 @@ public class DataSuite {
     public DataSuite(@JsonProperty("data") TestSuites test) {
         this.test = test;
     }
+
+    public TestSuites getTest() {
+        return test;
+    }
 }

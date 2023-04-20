@@ -12,4 +12,8 @@ public final class TestCase {
         this.id = id;
         this.title = title;
     }
+
+    public String getTitle() {
+        return title;
+    }
 }
