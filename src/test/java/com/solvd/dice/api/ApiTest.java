@@ -1,6 +1,5 @@
 package com.solvd.dice.api;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
@@ -15,7 +14,8 @@ import java.util.List;
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
-    List<TestCase> cases;
+    public DataSuite dataSuite;
+    List<TestSuite> suites;
 
     @BeforeMethod
     public void createToken() {
@@ -38,12 +38,9 @@ public class ApiTest implements IAbstractTest {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        DataSuite dataSuite = mapper.readValue(bodyString, DataSuite.class);
+        dataSuite = mapper.readValue(bodyString, DataSuite.class);
 
-
-        List<TestSuite> suites = List.of(dataSuite.getTest().getTestSuites());
-
-        System.out.println(cases);
+        suites = List.of(dataSuite.getTest().getTestSuites());
     }
 
     @Test()
