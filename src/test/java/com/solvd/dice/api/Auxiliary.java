@@ -22,7 +22,6 @@ public class Auxiliary {
                 testCaseTitles.add(title);
             }
         }
-        System.out.println(testCaseTitles);
         return testCaseTitles;
     }
 
