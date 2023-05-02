@@ -3,9 +3,16 @@ package com.solvd.dice.api;
 import com.codepine.api.testrail.TestRail;
 import com.codepine.api.testrail.model.Case;
 import com.codepine.api.testrail.model.CaseField;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.solvd.dice.api.tcmTestCasePojo.AutomationState;
+import com.solvd.dice.api.tcmTestCasePojo.Priority;
+import com.solvd.dice.api.tcmTestCasePojo.RegularStep;
+import com.solvd.dice.api.tcmTestCasePojo.TestCase;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Experimental {
@@ -20,21 +27,31 @@ public class Experimental {
 
         List<CaseField> customCaseFields = testRail.caseFields().list().execute();
         Case testCase = testRail.cases().get(17, customCaseFields).execute();
-        TestRailTestCasePojo testRailTestCasePojo = new TestRailTestCasePojo();
-        testRailTestCasePojo.setId((long) testCase.getId());
-        testRailTestCasePojo.setTitle(testCase.getTitle());
-        testRailTestCasePojo.setSection_id(testCase.getSectionId());
-        //template_id
-        testRailTestCasePojo.setType_id(testCase.getTypeId());
-        testRailTestCasePojo.setPriority_id(testCase.getPriorityId());
-        //testRailTestCasePojo.setMilestone_id(testCase.getMilestoneId());
-        testRailTestCasePojo.setRefs(testCase.getRefs());
-        testRailTestCasePojo.setCreated_by(testCase.getCreatedBy());
-        testRailTestCasePojo.setCreated_on(testCase.getCreatedOn());
-        testRailTestCasePojo.setUpdated_by(testCase.getUpdatedBy());
-        testRailTestCasePojo.setUpdated_on(testCase.getUpdatedOn());
-        testRailTestCasePojo.setEstimate(testCase.getEstimate());
-        testRailTestCasePojo.setEstimate_forecast(testCase.getEstimateForecast());
-        testRailTestCasePojo.setSuite_id(testCase.getSuiteId());
+
+        TestCase tcmTestCase = new TestCase();
+        tcmTestCase.setTestSuiteId(3335);  //required field
+        tcmTestCase.setTitle(testCase.getTitle());
+
+        Priority priority = new Priority();
+        priority.setId(447);  //required field
+
+        RegularStep regularStep = new RegularStep();
+        regularStep.setAction(testCase.getCustomField("steps"));
+        regularStep.setExpectedResult(testCase.getCustomField("expected"));
+        tcmTestCase.setDescription("TestRail ID " + testCase.getId());
+
+        AutomationState automationState = new AutomationState();
+        automationState.setId(323);  //required field
+
+        ArrayList<Object> attachments = new ArrayList<>();
+        ArrayList<Object> customFields = new ArrayList<>();
+
+        tcmTestCase.setPriority(priority);
+        tcmTestCase.setAutomationState(automationState);
+        tcmTestCase.setAttachments(attachments);
+        tcmTestCase.setCustomFields(customFields);
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.writeValue(new File("/Users/akaravikou/Documents/carina/src/test/resources/api/post/postTcmTestCase.json"), tcmTestCase);
     }
 }
