@@ -2,7 +2,7 @@ package com.solvd.dice.api.tcmTestCasePojo;
 
 import java.util.ArrayList;
 
-public class TestCase {
+public class TestCasePojo {
 
     private String title;
     private int testSuiteId;
@@ -13,6 +13,7 @@ public class TestCase {
     private boolean deprecated;
     private String preConditions;
     private String postConditions;
+    private ArrayList<Step> steps;
     private ArrayList<Object> attachments;
     private ArrayList<Object> customFields;
 
@@ -87,6 +88,10 @@ public class TestCase {
     public void setPostConditions(String postConditions) {
         this.postConditions = postConditions;
     }
+
+    public void setSteps(ArrayList<Step> steps) {this.steps = steps;}
+
+    public ArrayList<Step> getSteps() {return steps;}
 
     public ArrayList<Object> getAttachments() {
         return attachments;

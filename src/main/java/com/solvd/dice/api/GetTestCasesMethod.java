@@ -4,7 +4,7 @@ import com.zebrunner.carina.api.AbstractApiMethodV2;
 import com.zebrunner.carina.api.annotation.Endpoint;
 import com.zebrunner.carina.api.http.HttpMethodType;
 
-@Endpoint(url = "https://tcm.zebrunner.org/api/tcm/v1/test-repositories/main?projectId=100&includeCases=true&includeSubSuites=false",
+@Endpoint(url = "https://solvdinternal.zebrunner.com/api/tcm/v1/test-repositories/main?projectId=42",
 methodType = HttpMethodType.GET)
 public class GetTestCasesMethod extends AbstractApiMethodV2 {
 

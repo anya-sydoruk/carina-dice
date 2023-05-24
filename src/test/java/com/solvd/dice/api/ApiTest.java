@@ -6,7 +6,6 @@ import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import io.restassured.response.ResponseBody;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
-    public DataSuite dataSuite;
+    public com.solvd.dice.api.DataSuite dataSuite;
     List<TestSuite> suites;
 
     @BeforeMethod
@@ -27,7 +26,6 @@ public class ApiTest implements IAbstractTest {
         Assert.assertNotNull(token, "Token missing.");
     }
 
-    @Test()
     public void testGetAllTestCases() throws IOException {
         GetTestCasesMethod api = new GetTestCasesMethod();
         api.setToken(token);
@@ -43,9 +41,15 @@ public class ApiTest implements IAbstractTest {
         suites = List.of(dataSuite.getTest().getTestSuites());
     }
 
-    @Test()
     public void testCreateTestCase() {
         CreateTestCaseMethod api = new CreateTestCaseMethod();
+        api.setToken(token);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 201, "Incorrect response");
+    }
+
+    public void testCreateTestSuite() {
+        CreateTestSuiteMethod api = new CreateTestSuiteMethod();
         api.setToken(token);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
