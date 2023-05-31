@@ -1,1 +1,28 @@
-{"title":"Device group alarm status (low, medium, high alarm)","testSuiteId":379,"priority":{"id":170},"automationState":{"id":124},"description":"TestRail ID 73","draft":false,"deprecated":false,"preConditions":null,"postConditions":null,"steps":[{"type":"REGULAR","relativePosition":0,"regularStep":{"action":"1. Log to Collector\r\n2. Add the device to a group\r\n3. Add a low, medium, high alarm\r\n\r\n","expectedResult":"Device group alarm status is appropriate","attachments":null}}],"attachments":[],"customFields":[]}
+{
+   "title":"${title}",
+   "testSuiteId":"${testSuiteId}",
+   "priority":{
+      "id":"${priority_id}"
+   },
+   "automationState":{
+      "id":"${automationState_id}"
+   },
+   "description":"${description}",
+   "draft":false,
+   "deprecated":false,
+   "preConditions":"${preConditions}",
+   "postConditions":"${postConditions}",
+   "steps":[
+      {
+         "type":"REGULAR",
+         "relativePosition":0,
+         "regularStep":{
+            "action":"${action}",
+            "expectedResult":"${expectedResult}",
+            "attachments":[]
+         }
+      }
+   ],
+   "attachments":[],
+   "customFields":[]
+}

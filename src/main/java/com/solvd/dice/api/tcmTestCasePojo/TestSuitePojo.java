@@ -1,6 +1,5 @@
 package com.solvd.dice.api.tcmTestCasePojo;
 
-
 public class TestSuitePojo {
     private String title;
     private String description;

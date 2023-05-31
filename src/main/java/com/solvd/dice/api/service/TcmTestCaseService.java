@@ -1,19 +1,15 @@
 package com.solvd.dice.api.service;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
 
 import com.codepine.api.testrail.model.Case;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.solvd.dice.api.tcmTestCasePojo.AutomationState;
 import com.solvd.dice.api.tcmTestCasePojo.Priority;
 import com.solvd.dice.api.tcmTestCasePojo.RegularStep;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.Step;
 
-public class TcmTestCaseSetup {
+public class TcmTestCaseService {
 
     public int setPriority(Case testCase){
         int priorityTestRail = testCase.getPriorityId();
@@ -81,15 +77,16 @@ public class TcmTestCaseSetup {
  */
         RegularStep regularStep = new RegularStep();
         if (testCase.getCustomField("steps")!=null)
-        regularStep.setAction(testCase.getCustomField("steps"));
+        regularStep.setAction(testCase.getCustomField("steps").toString().replaceAll("\r", "\\\\n")
+                .replaceAll("\n", ""));
         else regularStep.setAction("");
         if (testCase.getCustomField("expected")!=null)
-            regularStep.setExpectedResult(testCase.getCustomField("expected"));
+            regularStep.setExpectedResult(testCase.getCustomField("expected").toString().replaceAll("\r", "\\\\n")
+                    .replaceAll("\n", ""));
         else regularStep.setExpectedResult("");
 
         Step step = new Step();
         step.setType("REGULAR");
-        step.setRelativePosition(0);
         step.setRegularStep(regularStep);
 
         ArrayList<Step> steps = new ArrayList<>();
@@ -102,15 +99,13 @@ public class TcmTestCaseSetup {
         tcmTestCase.setPriority(priority);
         tcmTestCase.setAutomationState(automationState);
         tcmTestCase.setDescription("TestRail ID " + testCase.getId());
-        tcmTestCase.setPreConditions(testCase.getCustomField("preconds"));
+        if (testCase.getCustomField("preconds")!=null)
+            tcmTestCase.setPreConditions(testCase.getCustomField("preconds").toString().replaceAll("\r", "\\\\n")
+                    .replaceAll("\n", ""));
+        else tcmTestCase.setPreConditions("");
+        tcmTestCase.setPostConditions("");
         tcmTestCase.setAttachments(attachments);
         tcmTestCase.setCustomFields(customFields);
         return tcmTestCase;
     }
-
-    public void createTestCaseFile(ArrayList<TestCasePojo> tcmTestCase) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File("src/test/resources/api/post/postTcmTestCase.json"), tcmTestCase);
-    }
-
 }

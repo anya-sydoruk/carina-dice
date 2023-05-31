@@ -1,4 +1,4 @@
-package com.solvd.dice.api;
+package com.solvd.dice.api.dataSuite;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;

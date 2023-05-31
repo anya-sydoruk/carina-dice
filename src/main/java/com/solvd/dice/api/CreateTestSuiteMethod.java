@@ -1,5 +1,6 @@
 package com.solvd.dice.api;
 
+import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import com.zebrunner.carina.api.AbstractApiMethodV2;
 import com.zebrunner.carina.api.annotation.Endpoint;
 import com.zebrunner.carina.api.annotation.RequestTemplatePath;
@@ -9,8 +10,10 @@ import com.zebrunner.carina.api.http.HttpMethodType;
 @RequestTemplatePath(path = "api/post/postTcmTestSuite.json")
 public class CreateTestSuiteMethod extends AbstractApiMethodV2 {
 
-    public void setToken(String token){
+    public void CreateTestSuite(String token, TestSuitePojo suite) {
         setHeaders("Authorization=Bearer " + token);
+        addProperty("title", suite.getTitle());
+        addProperty("description", suite.getDescription());
     }
 }
 

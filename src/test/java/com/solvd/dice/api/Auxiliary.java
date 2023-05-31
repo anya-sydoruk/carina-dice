@@ -1,17 +1,19 @@
 package com.solvd.dice.api;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import com.codepine.api.testrail.model.Case;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
-import com.solvd.dice.api.service.TcmTestCaseSetup;
+import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.service.TcmTestCaseService;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import lombok.extern.slf4j.Slf4j;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class Auxiliary {
@@ -19,185 +21,122 @@ public class Auxiliary {
     public static int tcmSuiteId = 0;
     public static int tcmSectionId = 0;
 
-    public TestSuite[] getTestSuites()throws IOException {
-        ApiTest apiTest = new ApiTest();
-        apiTest.createToken();
-        apiTest.testGetAllTestCases();
-
-        DataSuite dataSuite = apiTest.dataSuite;
-        return dataSuite.getTest().getTestSuites();
-    }
-
-    public List<String> getAllTestCasesTitles(TestSuite[] tcmData){
-        List<String> testCaseTitles = new ArrayList<>();
-        for (TestSuite sui : tcmData) {
-            TestCase[] css = sui.getTestCases();
-            for (TestCase testCase : css) {
-                String title = testCase.getTitle();
-                testCaseTitles.add(title);
-            }
-        }
-        return testCaseTitles;
-    }
-
-    public int getSuiteIdByTitle(TestSuite[] tcmData, String title) {
-        Long css = 0L;
-        for (TestSuite sui : tcmData) {
-            if (sui.getTitle().contains(title))
-                css = sui.getId();
-        }
-        int suiteId = Math.toIntExact(css);
-        log.info("suiteId " + title + " : " + css);
-
-        tcmSuiteId = suiteId;
-        return suiteId;
-    }
-
-    public int getSectionIdByTitle(TestSuite[] tcmData, String title) {
-        Long css = 0L;
-        for (TestSuite sui : tcmData) {
-            if (sui.getTitle().contains(title))
-                css = sui.getId();
-        }
-        int suiteId = Math.toIntExact(css);
-        log.info("suiteId " + title + " : " + css);
-
-        tcmSectionId = suiteId;
-        return suiteId;
-    }
-
-    public ArrayList<String>  getSuiteNames(TestSuite[] tcmData){
-        ArrayList<String> suiteNames = new ArrayList<>();
-        for (TestSuite sui : tcmData) {
-            suiteNames.add(sui.getTitle());
-        }
-        return suiteNames;
-    }
-
-    public ArrayList<String> getSubSuiteNames(TestSuite tcmData){
-        ArrayList<String> suiteNames = new ArrayList<>();
-        TestSuite[] subSuites = tcmData.getChildTestSuites();
-        for (TestSuite sui : subSuites) {
-            suiteNames.add(sui.getTitle());
-        }
-        return suiteNames;
-    }
-
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) throws IOException {
         ApiTestRailTest apiTestRailTest = new ApiTestRailTest();
+        DataSuiteService dataSuiteService = new DataSuiteService();
+        ApiTest api = new ApiTest();
 
         /**   GETTING SUITES **/
 
         List<Suite> suitesTR = apiTestRailTest.getSuitesTest();
         int id = suitesTR.get(suitesTR.size() - 1).getId();
-        System.out.println("Suites count: " + id);
+        log.info("Test Rail Suites count: " + id);
 
         /**   CHECKING SUITES **/
 
-        Auxiliary aux = new Auxiliary();
-        TestSuite[] tcmData = aux.getTestSuites(); //from TCM
-        ArrayList<String> suiteNamesTcm = aux.getSuiteNames(tcmData);
+        TestSuite[] tcmData = dataSuiteService.getTestSuites(); //from TCM
+        ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteNames(tcmData);
         ArrayList<Suite> notPresentSuiteTitles = new ArrayList<>();
 
         for (Suite tss : suitesTR){
             boolean contains = suiteNamesTcm.contains(tss.getName());
-            if (contains) log.info("Contains suite : " + tss.getName());
+            if (contains) log.info("TCM Contains suite : " + tss.getName());
             else notPresentSuiteTitles.add(tss);
         }
+        log.info("notPresentSuiteTitles size : " + notPresentSuiteTitles.size());
 
-        /**   CREATING NOT PRESENT SUITES **/
+        /**   CREATING / POSTING NOT PRESENT SUITES **/
 
         for (Suite tss : notPresentSuiteTitles){
             TestSuitePojo tcmTestSuite = new TestSuitePojo();
             tcmTestSuite.setTitle(tss.getName());
+            if (tss.getDescription() != null)
             tcmTestSuite.setDescription(tss.getDescription());
+            else tcmTestSuite.setDescription("");
+            tcmTestSuite.setParentSuiteId(0);
+            //api.testCreateTestSuite(tcmTestSuite);
         }
 
-        /**   POSTING SUITES **/
-/*
-        ObjectMapper mapper = new ObjectMapper();
-        mapper.writeValue(new File("src/test/resources/api/post/postTcmTestSuite.json"), tcmTestSuite);
-        ApiTest api = new ApiTest();
-        api.testCreateTestSuite();
-
- */
+        tcmData = dataSuiteService.getTestSuites(); //updating data from TCM
 
         /**   CHECKING SECTIONS **/
 
-        int currTrSuiteId = 1;
-
-        tcmSuiteId = aux.getSuiteIdByTitle(tcmData, suitesTR.get(currTrSuiteId).getName());
+        int currTrSuiteId = 1; //start loop for all suites. post subsuites, cases, repeat.
+        tcmSuiteId = dataSuiteService.getSuiteIdByTitle(tcmData, suitesTR.get(currTrSuiteId).getName());
 
         List<Section> sectionsTR = apiTestRailTest.getSectionsTest(currTrSuiteId);
-        log.info(sectionsTR.get(1).getName());
 
-        ArrayList<String> sectionNamesTcm = aux.getSubSuiteNames(tcmData[currTrSuiteId - 1]);
+        ArrayList<String> sectionNamesTcm = dataSuiteService.getSubSuiteNames(tcmData, tcmSuiteId);
         ArrayList<Section> notPresentSectionTitles = new ArrayList<>();
+        Map<Integer, String> sectionsMap = new HashMap<>();
 
         for (Section se : sectionsTR){
+            sectionsMap.put(se.getId(), se.getName());
             boolean contains = sectionNamesTcm.contains(se.getName());
-            if (contains) log.info("Contains SubSuite : " + se.getName());
+            if (contains) log.info("TCM Contains SubSuite : " + se.getName());
             else notPresentSectionTitles.add(se);
         }
+        log.info("notPresentSectionTitles size : " + notPresentSectionTitles.size());
 
         /**   CREATING NOT PRESENT SECTIONS **/
+        /**   NO DEPTH SECTIONS **/
 
-        for (Section se  : notPresentSectionTitles){
-            TestSuitePojo tcmTestSubSuite = new TestSuitePojo();
-            tcmTestSubSuite.setTitle(se.getName());
-            tcmTestSubSuite.setDescription(se.getDescription());
-            tcmTestSubSuite.setParentSuiteId(tcmSuiteId);
+        for (Section se : notPresentSectionTitles) {
+            if (se.getDepth() == 0) {
+                TestSuitePojo tcmTestSubSuite = new TestSuitePojo();
+                tcmTestSubSuite.setTitle(se.getName());
+                if (se.getDescription() != null)
+                    tcmTestSubSuite.setDescription(se.getDescription());
+                else tcmTestSubSuite.setDescription("");
+                tcmTestSubSuite.setParentSuiteId(tcmSuiteId);
+                //api.testCreateTestSuite(tcmTestSubSuite);
+            }
         }
+
+        //tcmData = dataSuiteService.getTestSuites(); //updating data from TCM
+
+        /**   DEPTH SECTIONS **/
+
+        for (Section se : notPresentSectionTitles) {
+            if (se.getDepth() == 1) {
+                TestSuitePojo tcmTestSubSuite = new TestSuitePojo();
+                tcmTestSubSuite.setTitle(se.getName());
+                if (se.getDescription() != null)
+                    tcmTestSubSuite.setDescription(se.getDescription());
+                else tcmTestSubSuite.setDescription("");
+                tcmSectionId = dataSuiteService.getSectionIdByTitle(tcmData, tcmSuiteId, sectionsMap.get(se.getParentId()));
+                tcmTestSubSuite.setParentSuiteId(tcmSectionId);
+                //api.testCreateTestSuite(tcmTestSubSuite);
+            }
+        }
+
+        //tcmData = dataSuiteService.getTestSuites(); //updating data from TCM
 
         /**   CHECKING CASES **/
 
-        List<Case> allTitlesTR = apiTestRailTest.getTestCasesTest(1);
+        List<Case> allTitlesTR = apiTestRailTest.getTestCasesTest(currTrSuiteId);
 
-        List<String> allTitlesTcm = aux.getAllTestCasesTitles(tcmData);
+        List<String> allTitlesTcm = dataSuiteService.getAllTestCasesTitles(tcmData);
         ArrayList<Case> notPresentCases= new ArrayList<>();
+        Map<String, Integer> casesSectionsMap = new HashMap<>();
 
         for (Case css : allTitlesTR) {
+            casesSectionsMap.put(css.getTitle(), css.getSectionId());
             boolean contains = allTitlesTcm.contains(css.getTitle());
             if (contains) log.info("Contains title : " + css.getTitle());
             else notPresentCases.add(css);
         }
 
-        log.info("Test Cases titles not present : " + notPresentCases.size() + " / " + allTitlesTR.size());
+        log.info("allTitlesTR : " + allTitlesTR.size());
+        log.info("notPresentCases : " + notPresentCases.size());
 
+        /**   CREATING / POSTING NOT PRESENT CASES **/
 
-        /**   CREATING NOT PRESENT CASES **/
-
-        ArrayList<TestCasePojo> tcmTestCases = new ArrayList<>();
         for (Case css : notPresentCases) {
-            TcmTestCaseSetup setup = new TcmTestCaseSetup();
-            tcmTestCases.add(setup.setTcmTestCaseTest(css, tcmSuiteId));
+            TcmTestCaseService setup = new TcmTestCaseService();
+            tcmSectionId = dataSuiteService.getSectionIdByTitle(tcmData, tcmSuiteId, sectionsMap.get(casesSectionsMap.get(css.getTitle())));
+            TestCasePojo tcmCase = setup.setTcmTestCaseTest(css, tcmSectionId);
+            api.testCreateTestCase(tcmCase);
         }
-
-        /**   POSTING CASES **/
-/*
-        ObjectMapper mapper = new ObjectMapper();
-        File file = new File("src/test/resources/api/post/postTcmTestCase.json");
-        mapper.writeValue(file, tcmTestCases.get(5));
-        log.info("File exists : " + file.exists());
-        ApiTest api = new ApiTest();
-        api.testCreateTestCase();
-
-        java.util.concurrent.TimeUnit.SECONDS.sleep(10);
-
-        mapper.writeValue(new File("src/test/resources/api/post/postTcmTestCase.json"), tcmTestCases.get(7));
-        api.testCreateTestCase();
-
-        //mapper.writeValue(new File("src/test/resources/api/post/1.json"), tcmTestSuite);
-/*
-
-        for (Case css : notPresentTitles) {
-            Experimental experimental = new Experimental();
-            TestCasePojo tcss = experimental.setTcmTestCaseTest(css, aux.getSuiteId(names));
-            mapper.writeValue(new File("src/test/resources/api/post/postTcmTestCase.json"), tcss);
-            ApiTest api = new ApiTest();
-            api.testCreateTestCase();
-                }
- */
-
     }
 }

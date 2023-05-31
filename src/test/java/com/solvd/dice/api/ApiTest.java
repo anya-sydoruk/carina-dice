@@ -1,19 +1,23 @@
 package com.solvd.dice.api;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.qaprosoft.carina.core.foundation.IAbstractTest;
-import io.restassured.response.ResponseBody;
-import org.testng.Assert;
-import org.testng.annotations.BeforeMethod;
-
 import java.io.IOException;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.qaprosoft.carina.core.foundation.IAbstractTest;
+import com.solvd.dice.api.dataSuite.DataSuite;
+import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
+import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
+import io.restassured.response.ResponseBody;
+
+import org.testng.Assert;
+import org.testng.annotations.BeforeMethod;
 
 public class ApiTest implements IAbstractTest {
     public static String token = "";
-    public com.solvd.dice.api.DataSuite dataSuite;
+    public DataSuite dataSuite;
     List<TestSuite> suites;
 
     @BeforeMethod
@@ -41,16 +45,19 @@ public class ApiTest implements IAbstractTest {
         suites = List.of(dataSuite.getTest().getTestSuites());
     }
 
-    public void testCreateTestCase() {
+    public void testCreateTestCase(TestCasePojo testCase) {
         CreateTestCaseMethod api = new CreateTestCaseMethod();
-        api.setToken(token);
+        api.CreateTestCase(token, testCase);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
     }
 
-    public void testCreateTestSuite() {
+    public void testCreateTestSuite(TestSuitePojo suite) {
         CreateTestSuiteMethod api = new CreateTestSuiteMethod();
-        api.setToken(token);
+        api.CreateTestSuite(token, suite);
+        if (suite.getParentSuiteId() != 0)
+        api.addProperty("parentSuiteId", suite.getParentSuiteId());
+        else api.addProperty("parentSuiteId", "");
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
     }
