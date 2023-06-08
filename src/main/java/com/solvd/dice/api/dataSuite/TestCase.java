@@ -8,10 +8,15 @@ public final class TestCase {
     public final String title;
 
     @JsonCreator
-    public TestCase(@JsonProperty("id")Long id, @JsonProperty("title")String title) {
+    public TestCase(@JsonProperty("id") Long id, @JsonProperty("title") String title){
         this.id = id;
         this.title = title;
     }
+
+    public Long getId() {
+        return id;
+    }
+
 
     public String getTitle() {
         return title;

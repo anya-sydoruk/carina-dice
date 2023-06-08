@@ -78,11 +78,11 @@ public class TcmTestCaseService {
         RegularStep regularStep = new RegularStep();
         if (testCase.getCustomField("steps")!=null)
         regularStep.setAction(testCase.getCustomField("steps").toString().replaceAll("\r", "\\\\n")
-                .replaceAll("\n", ""));
+                .replaceAll("\n", "").replace("\"","\\\""));
         else regularStep.setAction("");
         if (testCase.getCustomField("expected")!=null)
             regularStep.setExpectedResult(testCase.getCustomField("expected").toString().replaceAll("\r", "\\\\n")
-                    .replaceAll("\n", ""));
+                    .replaceAll("\n", "").replace("\"","\\\""));
         else regularStep.setExpectedResult("");
 
         Step step = new Step();
@@ -101,7 +101,7 @@ public class TcmTestCaseService {
         tcmTestCase.setDescription("TestRail ID " + testCase.getId());
         if (testCase.getCustomField("preconds")!=null)
             tcmTestCase.setPreConditions(testCase.getCustomField("preconds").toString().replaceAll("\r", "\\\\n")
-                    .replaceAll("\n", ""));
+                    .replaceAll("\n", "").replace("\"","\\\""));
         else tcmTestCase.setPreConditions("");
         tcmTestCase.setPostConditions("");
         tcmTestCase.setAttachments(attachments);

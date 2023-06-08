@@ -56,7 +56,7 @@ public class ApiTest implements IAbstractTest {
         CreateTestSuiteMethod api = new CreateTestSuiteMethod();
         api.CreateTestSuite(token, suite);
         if (suite.getParentSuiteId() != 0)
-        api.addProperty("parentSuiteId", suite.getParentSuiteId());
+            api.addProperty("parentSuiteId", suite.getParentSuiteId());
         else api.addProperty("parentSuiteId", "");
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");

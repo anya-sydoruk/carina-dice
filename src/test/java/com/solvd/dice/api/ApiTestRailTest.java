@@ -6,7 +6,6 @@ import com.codepine.api.testrail.TestRail;
 import com.codepine.api.testrail.model.*;
 
 import org.testng.Assert;
-import org.testng.annotations.Test;
 
 public class ApiTestRailTest {
 
@@ -14,17 +13,7 @@ public class ApiTestRailTest {
     private final String USERNAME = "akaravikou@solvd.com";
     private final String PASSWORD = "OsfdBz0Acymkokfg.yia-egy/c.NGEH1tiEx4s2L/";
 
-    @Test()
-    public Case getTestCaseTest(){
-        TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();
-
-        List<CaseField> customCaseFields = testRail.caseFields().list().execute();
-        Case testCase = testRail.cases().get(17, customCaseFields).execute();
-        return testCase;
-    }
-
-    @Test()
-    public List<Case> getTestCasesTest(int suiteId){
+    public List<Case> getTestCases(int suiteId) {
         TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();
 
         List<CaseField> customCaseFields = testRail.caseFields().list().execute();
@@ -33,8 +22,7 @@ public class ApiTestRailTest {
         return allTitlesTR;
     }
 
-    @Test()
-    public List<Suite> getSuitesTest(){
+    public List<Suite> getSuites() {
         TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();
 
         List<Suite> suiteTitles = testRail.suites().list(1).execute();
@@ -42,8 +30,7 @@ public class ApiTestRailTest {
         return suiteTitles;
     }
 
-    @Test()
-    public List<Section> getSectionsTest(int suiteId){
+    public List<Section> getSections(int suiteId) {
         TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();
 
         List<Section> sectionTitles = testRail.sections().list(1, suiteId).execute();
