@@ -1,10 +1,14 @@
 package com.solvd.dice.api;
 
+import java.util.ArrayList;
+
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.zebrunner.carina.api.AbstractApiMethodV2;
 import com.zebrunner.carina.api.annotation.Endpoint;
 import com.zebrunner.carina.api.annotation.RequestTemplatePath;
 import com.zebrunner.carina.api.http.HttpMethodType;
+
+import static com.solvd.dice.api.service.TcmTestCaseService.stepsAsString;
 
 @Endpoint(url = "https://solvdinternal.zebrunner.com/api/tcm/v1/test-cases?projectId=42", methodType = HttpMethodType.POST)
 @RequestTemplatePath(path = "api/post/postTcmTestCase.json")
@@ -19,10 +23,14 @@ public class CreateTestCaseMethod extends AbstractApiMethodV2 {
         addProperty("description", testCase.getDescription());
         addProperty("preConditions", testCase.getPreConditions());
         addProperty("postConditions", testCase.getPostConditions());
-        addProperty("action", testCase.getSteps().get(0).getRegularStep().getAction());
-        addProperty("expectedResult", testCase.getSteps().get(0).getRegularStep().getExpectedResult());
-        //addProperty("attachments_step", testCase.getSteps().get(0).getRegularStep().getAttachments());
-        //addProperty("attachments", testCase.getAttachments());
-        //addProperty("customFields", testCase.getCustomFields());
+        if (testCase.getSteps().get(0).getRegularStep().getAction() != null)
+            addProperty("steps", stepsAsString);
+        else {
+            ArrayList<Object> emptyArray = new ArrayList<>();
+            emptyArray.add("");
+            addProperty("steps", emptyArray);
+        }
+        addProperty("attachments", testCase.getAttachments());
+        addProperty("customFields", testCase.getCustomFields());
     }
 }

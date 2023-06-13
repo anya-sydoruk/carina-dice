@@ -12,17 +12,7 @@
    "deprecated":false,
    "preConditions":"${preConditions}",
    "postConditions":"${postConditions}",
-   "steps":[
-      {
-         "type":"REGULAR",
-         "relativePosition":0,
-         "regularStep":{
-            "action":"${action}",
-            "expectedResult":"${expectedResult}",
-            "attachments":[]
-         }
-      }
-   ],
-   "attachments":[],
-   "customFields":[]
+   "steps":${steps},
+   "attachments":${attachments},
+   "customFields":${customFields}
 }

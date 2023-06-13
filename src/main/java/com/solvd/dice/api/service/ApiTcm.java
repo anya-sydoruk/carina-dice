@@ -1,4 +1,4 @@
-package com.solvd.dice.api;
+package com.solvd.dice.api.service;
 
 import java.io.IOException;
 import java.util.List;
@@ -6,6 +6,10 @@ import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
+import com.solvd.dice.api.CreateTestCaseMethod;
+import com.solvd.dice.api.CreateTestSuiteMethod;
+import com.solvd.dice.api.GetTestCasesMethod;
+import com.solvd.dice.api.GetTokenMethod;
 import com.solvd.dice.api.dataSuite.DataSuite;
 import com.solvd.dice.api.dataSuite.TestSuite;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
@@ -15,7 +19,7 @@ import io.restassured.response.ResponseBody;
 import org.testng.Assert;
 import org.testng.annotations.BeforeMethod;
 
-public class ApiTest implements IAbstractTest {
+public class ApiTcm implements IAbstractTest {
     public static String token = "";
     public DataSuite dataSuite;
     List<TestSuite> suites;

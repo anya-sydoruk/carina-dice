@@ -9,77 +9,73 @@ import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
 import com.solvd.dice.api.dataSuite.TestCase;
 import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.service.ApiTestRail;
+import com.solvd.dice.api.service.DataSuiteService;
+import com.solvd.dice.api.service.TcmService;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class Auxiliary {
 
     public void importSuite(int trSuiteId, List<Suite> suitesTR, TestSuite[] tcmData) throws IOException {
-        ApiTestRailTest apiTestRailTest = new ApiTestRailTest();
+
+        ApiTestRail apiTestRail = new ApiTestRail();
         DataSuiteService dataSuiteService = new DataSuiteService();
         TcmService tcmService = new TcmService();
 
         int tcmSuiteId = dataSuiteService.getSuiteIdByTitle(tcmData, suitesTR.get(trSuiteId - 1).getName());
-        log.info("tcmSuiteId Name : " + suitesTR.get(trSuiteId - 1).getName());
-        log.info("tcmSuiteId : " + tcmSuiteId);
+        log.warn("tcmSuiteId Name : " + suitesTR.get(trSuiteId - 1).getName());
 
         /**   CREATING SECTIONS **/
 
-        List<Section> sectionsTR = apiTestRailTest.getSections(trSuiteId);
-        ArrayList<String> sectionNamesTcm = dataSuiteService.getSubSuiteNames(tcmData, tcmSuiteId);
-        ArrayList<Section> notPresentSectionTitles = tcmService.getNotPresentSectionTitles(sectionNamesTcm, sectionsTR);
+        List<Section> sectionsTR = apiTestRail.getSections(trSuiteId);
+        ArrayList<TestSuite> sectionsTcm = dataSuiteService.getSubSuites(tcmData, tcmSuiteId);
+        ArrayList<Section> notPresentSections = tcmService.getNotPresentSections(sectionsTcm, sectionsTR);
 
-        tcmService.createNotPresentSubSuites(notPresentSectionTitles, tcmSuiteId);
-
-        if (notPresentSectionTitles.size() != 0)
+        tcmService.createNotPresentSubSuites(notPresentSections, tcmSuiteId);
+        if (notPresentSections.size() != 0)
             tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
         /**   CREATING CASES **/
 
-        List<Case> allTitlesTR = apiTestRailTest.getTestCases(trSuiteId);
-        List<TestCase> allTestCases = dataSuiteService.getSuiteTestCases(tcmData, tcmSuiteId);
+        List<Case> casesTR = apiTestRail.getTestCases(trSuiteId);
+        List<TestCase> testCasesTcm = dataSuiteService.getTestCases(tcmData, tcmSuiteId);
 
-        List<String> allTitlesTcm = dataSuiteService.getSuiteTestCaseTitles(tcmData, tcmSuiteId);
-        ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(allTestCases, allTitlesTcm, allTitlesTR);
-        //ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(allTitlesTcm, allTitlesTR);
-
+        ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(testCasesTcm, casesTR);
         tcmService.createNotPresentCases(notPresentCases, tcmData, tcmSuiteId);
 
         /**   FINAL CHECK **/
-
+/*
         tcmData = dataSuiteService.getTestData(); //final updating data from TCM
         allTitlesTcm = dataSuiteService.getSuiteTestCaseTitles(tcmData, tcmSuiteId);
         tcmService.getNotPresentCases(allTestCases, allTitlesTcm, allTitlesTR);
-
+*/
     }
 
     public static void main(String[] args) throws IOException {
-        ApiTestRailTest apiTestRailTest = new ApiTestRailTest();
+        ApiTestRail apiTestRail = new ApiTestRail();
         DataSuiteService dataSuiteService = new DataSuiteService();
         TcmService tcmService = new TcmService();
+        Auxiliary aux = new Auxiliary();
 
         /**   GETTING AND CHECKING SUITES **/
 
-        List<Suite> suitesTR = apiTestRailTest.getSuites();
-        int id = suitesTR.get(suitesTR.size() - 1).getId();
-        log.info("Test Rail Suites count: " + id);
+        List<Suite> suitesTR = apiTestRail.getSuites();
 
-        TestSuite[] tcmData = dataSuiteService.getTestData(); //from TCM
-        ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteNames(tcmData);
-        ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuiteTitles(suiteNamesTcm, suitesTR);
+        TestSuite[] tcmData = dataSuiteService.getTestData(); //getting data from TCM
+        ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteTitles(tcmData);
+        ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuites(suiteNamesTcm, suitesTR);
 
-        /**   CREATING / POSTING NOT PRESENT SUITES **/
+        /**   CREATING NOT PRESENT SUITES **/
 
         tcmService.createNotPresentSuites(notPresentSuiteTitles);
 
         if (notPresentSuiteTitles.size() !=0 ) tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
-        //start loop for all suites. post subsuites, cases, repeat.
+        /**   IMPORTING SUITES **/
 
-        /**   CHECKING SECTIONS **/
-
-        Auxiliary aux = new Auxiliary();
-        aux.importSuite(1, suitesTR, tcmData);
-
+        aux.importSuite(7, suitesTR, tcmData);
+        aux.importSuite(8, suitesTR, tcmData);
+        aux.importSuite(9, suitesTR, tcmData);
     }
 }

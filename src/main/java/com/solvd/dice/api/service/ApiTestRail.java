@@ -1,4 +1,4 @@
-package com.solvd.dice.api;
+package com.solvd.dice.api.service;
 
 import java.util.List;
 
@@ -7,7 +7,7 @@ import com.codepine.api.testrail.model.*;
 
 import org.testng.Assert;
 
-public class ApiTestRailTest {
+public class ApiTestRail {
 
     private final String END_POINT = "https://modiusqa.testrail.net";
     private final String USERNAME = "akaravikou@solvd.com";
