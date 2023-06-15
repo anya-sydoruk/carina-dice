@@ -9,17 +9,25 @@ import com.solvd.dice.web.page.StorePage;
 import com.zebrunner.agent.core.annotation.TestCaseKey;
 import com.zebrunner.agent.core.registrar.TestCase;
 import com.zebrunner.carina.utils.R;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.remote.RemoteWebDriver;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 import org.testng.asserts.SoftAssert;
 
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WebDiceTest implements IAbstractTest {
 
+    //Work with branches
+
     @BeforeSuite
-    public void beforeTest() {
+    public void beforeTest(){
         TestCase.setTestRunId("146");
         TestCase.enableRealTimeSync();
     }
