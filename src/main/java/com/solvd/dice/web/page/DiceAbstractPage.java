@@ -4,6 +4,7 @@ import com.qaprosoft.carina.core.gui.AbstractPage;
 import com.solvd.dice.web.component.Footer;
 import com.solvd.dice.web.component.Header;
 import com.solvd.dice.web.component.PopupSignUpForm;
+import com.zebrunner.carina.utils.R;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.FindBy;
 
