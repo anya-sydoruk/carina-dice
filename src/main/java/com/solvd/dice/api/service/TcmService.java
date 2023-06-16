@@ -6,20 +6,88 @@ import java.util.*;
 import com.codepine.api.testrail.model.Case;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
-import com.solvd.dice.api.dataSuite.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuite;
+import com.codepine.api.testrail.model.CaseType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.solvd.dice.api.dataSuite.Tabs.Field;
+import com.solvd.dice.api.tcmCustomField.CustomField;
+import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
+import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.tcmCustomField.Option;
+import com.solvd.dice.api.tcmCustomField.Value;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import lombok.extern.slf4j.Slf4j;
-
-import static com.solvd.dice.api.service.DataSuiteService.casesParentsMapTcm;
-import static com.solvd.dice.api.service.DataSuiteService.sectionParentsMapTcm;
 
 @Slf4j
 public class TcmService {
 
     public static HashMap<Integer, Section> sectionsMapTR = new HashMap<>();
     public static HashMap<Integer, Suite> suitesMapTR = new HashMap<>();
+    public static HashMap<Integer, CaseType> caseTypesMapTR = new HashMap<>();
+    public static String valueAsString = "";
+
+    public CustomField createCaseTypeField(List<CaseType> caseTypes, int tabId) {
+        CustomField customField = new CustomField();
+
+        customField.setName("Case Type");
+        customField.setDataType("DROPDOWN");
+        customField.setTabId(tabId);
+        Value value = new Value();
+        value.setHasIcon(false);
+        List<Option> options = new ArrayList<>();
+
+        for (CaseType ct : caseTypes) {
+            Option option = new Option();
+            option.setName(ct.getName());
+            option.setIsDefault(ct.isDefault());
+            option.setRelativePosition(caseTypes.indexOf(ct));
+            options.add(option);
+        }
+        value.setOptions(options);
+        customField.setValue(value);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            valueAsString = mapper.writeValueAsString(value);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        ApiTcm api = new ApiTcm();
+        api.testCreateCustomField(customField);
+        return customField;
+    }
+
+    public CustomField createTestRailIdField(int tabId) {
+        CustomField customField = new CustomField();
+        customField.setName("TestRail ID");
+        customField.setDataType("STRING");
+        customField.setTabId(tabId);
+        valueAsString = "{}";
+        ApiTcm api = new ApiTcm();
+        api.testCreateCustomField(customField);
+        return customField;
+    }
+
+    public void createFields(Field[] fields, List<CaseType> caseTypes, int tabId){
+        boolean isCaseTypePresent = false;
+        boolean isTrIdPresent = false;
+        for (Field fi : fields) {
+            if (fi.getName().contains("Case Type")) {
+                isCaseTypePresent = true;
+                log.info("Case Type field is present");
+            }
+            if (fi.getName().contains("TestRail ID")) {
+                isTrIdPresent = true;
+                log.info("TestRail Id field is present");
+            }
+        }
+        for (CaseType ct : caseTypes) {
+            TcmService.caseTypesMapTR.put(ct.getId(), ct);
+        }
+        if (!isCaseTypePresent) createCaseTypeField(caseTypes, tabId);
+        if (!isTrIdPresent) createTestRailIdField(tabId);
+    }
 
     public ArrayList<Suite> getNotPresentSuites(List<String> suiteNamesTcm, List<Suite> suitesTR) {
         ArrayList<Suite> notPresentSuites = new ArrayList<>();
@@ -51,7 +119,7 @@ public class TcmService {
             if (sectionNamesTcm.contains(se.getName())) {
                 for (TestSuite sui : sectionsTcm) {
                     boolean containsName = se.getName().contains(sui.getTitle());
-                    boolean containsParent = parentName.contains(sectionParentsMapTcm.get(sui.getId()));
+                    boolean containsParent = parentName.contains(DataSuiteService.sectionParentsMapTcm.get(sui.getId()));
                     if (containsName && containsParent) contains = true;
                 }
                 if (!contains) notPresentSectionTitles.add(se);
@@ -73,7 +141,7 @@ public class TcmService {
             if (caseTitlesTcm.contains(css.getTitle())) {
                 for (TestCase title : testCasesTcm) {
                     boolean containsName = css.getTitle().contains(title.getTitle());
-                    boolean containsParent = sectionsMapTR.get(css.getSectionId()).getName().contains(casesParentsMapTcm.get(title.getId()));
+                    boolean containsParent = sectionsMapTR.get(css.getSectionId()).getName().contains(DataSuiteService.casesParentsMapTcm.get(title.getId()));
                     if (containsName && containsParent) contains = true;
                 }
                 if (!contains) notPresentCases.add(css);

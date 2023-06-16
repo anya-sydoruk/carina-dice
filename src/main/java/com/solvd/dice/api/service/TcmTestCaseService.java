@@ -1,19 +1,19 @@
 package com.solvd.dice.api.service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import com.codepine.api.testrail.model.Case;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.solvd.dice.api.tcmTestCasePojo.AutomationState;
-import com.solvd.dice.api.tcmTestCasePojo.Priority;
-import com.solvd.dice.api.tcmTestCasePojo.RegularStep;
-import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
-import com.solvd.dice.api.tcmTestCasePojo.Step;
+import com.solvd.dice.api.dataSuite.Tabs.Field;
+import com.solvd.dice.api.tcmCustomField.Option;
+import com.solvd.dice.api.tcmTestCasePojo.*;
 
 public class TcmTestCaseService {
 
     public static String stepsAsString = "";
+    public static String customFieldsAsString = "";
 
     public int setPriority(Case testCase){
         int priorityTestRail = testCase.getPriorityId();
@@ -30,17 +30,7 @@ public class TcmTestCaseService {
         return 172; //Trivial
     }
 
-    public ArrayList<String> setSteps(String steps){
-        ArrayList<String> expected2 = new ArrayList<>();
-        String[] expected1 = steps.split("\r\n");
-        for (String step : expected1) {
-            step = step.replaceFirst("[0-9]\\)\\s","");
-            expected2.add(step);
-        }
-        return expected2;
-    }
-
-    public TestCasePojo setTcmTestCaseTest(Case testCase, int tcmSuiteId ) {
+    public TestCasePojo setTcmTestCaseTest(Case testCase, int tcmSuiteId) {
         TestCasePojo tcmTestCase = new TestCasePojo();
         tcmTestCase.setTestSuiteId(tcmSuiteId);
         tcmTestCase.setTitle(testCase.getTitle());
@@ -50,25 +40,7 @@ public class TcmTestCaseService {
 
         AutomationState automationState = new AutomationState();
         automationState.setId(126);  // Not Automated - 124, To Be Automated - 125, Automated - 126
-/*
-        ArrayList<String> stepsArray = setSteps(testCase.getCustomField("steps"));
-        ArrayList<String> expectedArray = setSteps(testCase.getCustomField("expected"));
-        ArrayList<Step> steps = new ArrayList<>();
 
-        for (String stepOne : stepsArray) {
-            RegularStep regularStep = new RegularStep();
-            regularStep.setAction(stepOne);
-            regularStep.setExpectedResult(expectedArray.get(stepsArray.indexOf(stepOne)));
-
-            Step step = new Step();
-            step.setType("REGULAR");
-            step.setRegularStep(regularStep);
-
-            steps.add(step);
-        }
-        tcmTestCase.setSteps(steps);
-
- */
         RegularStep regularStep = new RegularStep();
         regularStep.setAction(testCase.getCustomField("steps"));
         regularStep.setExpectedResult(testCase.getCustomField("expected"));
@@ -83,23 +55,43 @@ public class TcmTestCaseService {
         steps.add(step);
         tcmTestCase.setSteps(steps);
 
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            stepsAsString = mapper.writeValueAsString(steps);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
         ArrayList<Object> attachments = new ArrayList<>();
-        ArrayList<Object> customFields = new ArrayList<>();
+        ArrayList<CustomFieldCase> customFields = new ArrayList<>();
+        CustomFieldCase caseType = new CustomFieldCase();
+        CustomFieldCase trId = new CustomFieldCase();
+        for (Field fi : DataSuiteService.fields) {
+            if (fi.getName().contains("Case Type")) {
+                List<Option> options = fi.getValue().getOptions();
+                for (Option op : options) {
+                    if (op.getName().contains(TcmService.caseTypesMapTR.get(testCase.getTypeId()).getName())) {
+                        caseType.setValue(op.getValue());
+                        caseType.setId(fi.getId());
+                        customFields.add(caseType);
+                    }
+                }
+            }
+            if (fi.getName().contains("TestRail ID")) {
+                trId.setValue(String.valueOf(testCase.getId()));
+                trId.setId(fi.getId());
+                customFields.add(trId);
+            }
+        }
 
         tcmTestCase.setPriority(priority);
         tcmTestCase.setAutomationState(automationState);
-        tcmTestCase.setDescription("TestRail ID " + testCase.getId());
+        tcmTestCase.setDescription("");
         tcmTestCase.setPreConditions(setNotNullLine(testCase.getCustomField("preconds")));
         tcmTestCase.setPostConditions("");
         tcmTestCase.setAttachments(setNotNullArray(attachments));
-        tcmTestCase.setCustomFields(setNotNullArray(customFields));
+        tcmTestCase.setCustomFields(customFields);
+
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            stepsAsString = mapper.writeValueAsString(steps);
+            customFieldsAsString = mapper.writeValueAsString(customFields);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
         return tcmTestCase;
     }
 

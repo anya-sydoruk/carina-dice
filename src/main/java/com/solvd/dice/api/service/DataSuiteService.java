@@ -7,9 +7,12 @@ import java.util.HashMap;
 import java.util.List;
 
 import com.codepine.api.testrail.model.Section;
-import com.solvd.dice.api.dataSuite.DataSuite;
-import com.solvd.dice.api.dataSuite.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.dataSuite.Tabs.Field;
+import com.solvd.dice.api.dataSuite.Tabs.Tab;
+import com.solvd.dice.api.dataSuite.Tabs.SettingsData;
+import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
+import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
+import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -19,13 +22,37 @@ public class DataSuiteService {
     public static HashMap<Long, String> casesParentsMapTcm = new HashMap<>();
     public static HashMap<Long, String> sectionParentsMapTcm = new HashMap<>();
 
+    public static Field[] fields;
+
+
     public TestSuite[] getTestData() throws IOException {
         ApiTcm apiTcm = new ApiTcm();
-        apiTcm.createToken();
         apiTcm.testGetAllTestCases();
 
         DataSuite dataSuite = apiTcm.dataSuite;
         return dataSuite.getTest().getTestSuites();
+    }
+
+    public SettingsData getTabsData() throws IOException {
+        ApiTcm apiTcm = new ApiTcm();
+        apiTcm.createToken();
+        apiTcm.testGetAllCustomFields();
+
+        return apiTcm.settingsData;
+    }
+
+    public int getPropertiesTabId(SettingsData settingsData){
+        Tab[] tabs = settingsData.getSettings().getTabs();
+        for (Tab tab : tabs){
+            if (tab.getName().contains("Properties"))
+                return tab.getId();
+        }
+        return 0;
+    }
+
+    public Field[] getFields(SettingsData settingsData){
+        fields = settingsData.getSettings().getFields();
+        return fields;
     }
 
     public ArrayList<String> getSuiteTitles(TestSuite[] tcmData) {

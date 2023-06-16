@@ -14,6 +14,9 @@ public class CreateTestSuiteMethod extends AbstractApiMethodV2 {
         setHeaders("Authorization=Bearer " + token);
         addProperty("title", suite.getTitle());
         addProperty("description", suite.getDescription());
+        if (suite.getParentSuiteId() != 0)
+            addProperty("parentSuiteId", suite.getParentSuiteId());
+        else addProperty("parentSuiteId", "");
     }
 }
 

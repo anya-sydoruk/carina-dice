@@ -6,12 +6,11 @@ import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
-import com.solvd.dice.api.CreateTestCaseMethod;
-import com.solvd.dice.api.CreateTestSuiteMethod;
-import com.solvd.dice.api.GetTestCasesMethod;
-import com.solvd.dice.api.GetTokenMethod;
-import com.solvd.dice.api.dataSuite.DataSuite;
-import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.*;
+import com.solvd.dice.api.dataSuite.Tabs.SettingsData;
+import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
+import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.tcmCustomField.CustomField;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import io.restassured.response.ResponseBody;
@@ -22,6 +21,7 @@ import org.testng.annotations.BeforeMethod;
 public class ApiTcm implements IAbstractTest {
     public static String token = "";
     public DataSuite dataSuite;
+    public SettingsData settingsData;
     List<TestSuite> suites;
 
     @BeforeMethod
@@ -36,6 +36,7 @@ public class ApiTcm implements IAbstractTest {
 
     public void testGetAllTestCases() throws IOException {
         GetTestCasesMethod api = new GetTestCasesMethod();
+        if (token == "") createToken();
         api.setToken(token);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 200, "Incorrect response.");
@@ -59,10 +60,29 @@ public class ApiTcm implements IAbstractTest {
     public void testCreateTestSuite(TestSuitePojo suite) {
         CreateTestSuiteMethod api = new CreateTestSuiteMethod();
         api.CreateTestSuite(token, suite);
-        if (suite.getParentSuiteId() != 0)
-            api.addProperty("parentSuiteId", suite.getParentSuiteId());
-        else api.addProperty("parentSuiteId", "");
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
     }
+
+    public void testCreateCustomField(CustomField customField){
+        CreateCustomFieldMethod api = new CreateCustomFieldMethod();
+        api.CreateCustomFieldMethod(token, customField);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 201, "Incorrect response");
+    }
+
+    public void testGetAllCustomFields() throws IOException {
+        GetTestCaseSettings api = new GetTestCaseSettings();
+        if (token == "") createToken();
+        api.setToken(token);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 200, "Incorrect response.");
+        String bodyString = api.callAPI().body().asString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        settingsData = mapper.readValue(bodyString, SettingsData.class);
+    }
+
 }

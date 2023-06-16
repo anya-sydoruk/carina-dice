@@ -37,4 +37,12 @@ public class ApiTestRail {
         Assert.assertFalse(sectionTitles.isEmpty());
         return sectionTitles;
     }
+
+    public List<CaseType> getCaseTypes() {
+        TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();
+
+        List<CaseType> caseTypes = testRail.caseTypes().list().execute();
+        Assert.assertFalse(caseTypes.isEmpty());
+        return caseTypes;
+    }
 }

@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.codepine.api.testrail.model.Case;
+import com.codepine.api.testrail.model.CaseType;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
-import com.solvd.dice.api.dataSuite.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuite;
+import com.solvd.dice.api.dataSuite.Tabs.Field;
+import com.solvd.dice.api.dataSuite.Tabs.SettingsData;
+import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
+import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
 import com.solvd.dice.api.service.ApiTestRail;
 import com.solvd.dice.api.service.DataSuiteService;
 import com.solvd.dice.api.service.TcmService;
 import lombok.extern.slf4j.Slf4j;
+
+import org.testng.annotations.Test;
 
 @Slf4j
 public class Auxiliary {
@@ -43,39 +48,37 @@ public class Auxiliary {
 
         ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(testCasesTcm, casesTR);
         tcmService.createNotPresentCases(notPresentCases, tcmData, tcmSuiteId);
-
-        /**   FINAL CHECK **/
-/*
-        tcmData = dataSuiteService.getTestData(); //final updating data from TCM
-        allTitlesTcm = dataSuiteService.getSuiteTestCaseTitles(tcmData, tcmSuiteId);
-        tcmService.getNotPresentCases(allTestCases, allTitlesTcm, allTitlesTR);
-*/
     }
 
-    public static void main(String[] args) throws IOException {
+    @Test
+    public void main() throws IOException {
         ApiTestRail apiTestRail = new ApiTestRail();
         DataSuiteService dataSuiteService = new DataSuiteService();
         TcmService tcmService = new TcmService();
-        Auxiliary aux = new Auxiliary();
 
-        /**   GETTING AND CHECKING SUITES **/
+        /**   CONFIGURING SETTINGS **/
 
-        List<Suite> suitesTR = apiTestRail.getSuites();
-
-        TestSuite[] tcmData = dataSuiteService.getTestData(); //getting data from TCM
-        ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteTitles(tcmData);
-        ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuites(suiteNamesTcm, suitesTR);
+        SettingsData settingsData = dataSuiteService.getTabsData();
+        int tabId = dataSuiteService.getPropertiesTabId(settingsData);
+        List<CaseType> caseTypes = apiTestRail.getCaseTypes();
+        tcmService.createFields(dataSuiteService.getFields(settingsData), caseTypes, tabId);
 
         /**   CREATING NOT PRESENT SUITES **/
 
+        List<Suite> suitesTR = apiTestRail.getSuites();
+        TestSuite[] tcmData = dataSuiteService.getTestData(); //getting data from TCM
+        ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteTitles(tcmData);
+        ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuites(suiteNamesTcm, suitesTR);
         tcmService.createNotPresentSuites(notPresentSuiteTitles);
 
         if (notPresentSuiteTitles.size() !=0 ) tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
         /**   IMPORTING SUITES **/
-
-        aux.importSuite(7, suitesTR, tcmData);
-        aux.importSuite(8, suitesTR, tcmData);
-        aux.importSuite(9, suitesTR, tcmData);
+/*
+        importSuite(7, suitesTR, tcmData);
+        importSuite(8, suitesTR, tcmData);
+        importSuite(9, suitesTR, tcmData);
+ */
+        importSuite(5, suitesTR, tcmData);
     }
 }

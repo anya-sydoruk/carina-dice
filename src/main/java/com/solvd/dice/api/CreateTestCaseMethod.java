@@ -8,6 +8,7 @@ import com.zebrunner.carina.api.annotation.Endpoint;
 import com.zebrunner.carina.api.annotation.RequestTemplatePath;
 import com.zebrunner.carina.api.http.HttpMethodType;
 
+import static com.solvd.dice.api.service.TcmTestCaseService.customFieldsAsString;
 import static com.solvd.dice.api.service.TcmTestCaseService.stepsAsString;
 
 @Endpoint(url = "https://solvdinternal.zebrunner.com/api/tcm/v1/test-cases?projectId=42", methodType = HttpMethodType.POST)
@@ -31,6 +32,6 @@ public class CreateTestCaseMethod extends AbstractApiMethodV2 {
             addProperty("steps", emptyArray);
         }
         addProperty("attachments", testCase.getAttachments());
-        addProperty("customFields", testCase.getCustomFields());
+        addProperty("customFields", customFieldsAsString);
     }
 }

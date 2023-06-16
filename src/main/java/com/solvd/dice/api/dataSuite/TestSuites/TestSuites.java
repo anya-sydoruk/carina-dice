@@ -1,8 +1,7 @@
-package com.solvd.dice.api.dataSuite;
+package com.solvd.dice.api.dataSuite.TestSuites;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.solvd.dice.api.dataSuite.TestSuite;
 
 public final class TestSuites {
     public final TestSuite[] testSuites;
