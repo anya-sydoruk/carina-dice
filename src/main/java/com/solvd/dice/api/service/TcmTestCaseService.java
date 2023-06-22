@@ -1,19 +1,15 @@
 package com.solvd.dice.api.service;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import com.codepine.api.testrail.model.Case;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.solvd.dice.api.dataSuite.Tabs.Field;
-import com.solvd.dice.api.tcmCustomField.Option;
 import com.solvd.dice.api.tcmTestCasePojo.*;
 
 public class TcmTestCaseService {
 
     public static String stepsAsString = "";
-    public static String customFieldsAsString = "";
 
     public int setPriority(Case testCase){
         int priorityTestRail = testCase.getPriorityId();
@@ -43,7 +39,7 @@ public class TcmTestCaseService {
 
         RegularStep regularStep = new RegularStep();
         regularStep.setAction(testCase.getCustomField("steps"));
-        regularStep.setExpectedResult(testCase.getCustomField("expected"));
+        regularStep.setExpectedResult(setNotNullLine(testCase.getCustomField("expected")));
         ArrayList<Object> stepAttachments = new ArrayList<>();
         regularStep.setAttachments(setNotNullArray(stepAttachments));
 
@@ -56,39 +52,20 @@ public class TcmTestCaseService {
         tcmTestCase.setSteps(steps);
 
         ArrayList<Object> attachments = new ArrayList<>();
-        ArrayList<CustomFieldCase> customFields = new ArrayList<>();
-        CustomFieldCase caseType = new CustomFieldCase();
-        CustomFieldCase trId = new CustomFieldCase();
-        for (Field fi : DataSuiteService.fields) {
-            if (fi.getName().contains("Case Type")) {
-                List<Option> options = fi.getValue().getOptions();
-                for (Option op : options) {
-                    if (op.getName().contains(TcmService.caseTypesMapTR.get(testCase.getTypeId()).getName())) {
-                        caseType.setValue(op.getValue());
-                        caseType.setId(fi.getId());
-                        customFields.add(caseType);
-                    }
-                }
-            }
-            if (fi.getName().contains("TestRail ID")) {
-                trId.setValue(String.valueOf(testCase.getId()));
-                trId.setId(fi.getId());
-                customFields.add(trId);
-            }
-        }
+        ArrayList<Object> customFields = new ArrayList<>();
 
         tcmTestCase.setPriority(priority);
         tcmTestCase.setAutomationState(automationState);
-        tcmTestCase.setDescription("");
-        tcmTestCase.setPreConditions(setNotNullLine(testCase.getCustomField("preconds")));
+        tcmTestCase.setDescription("TestRail ID: " + testCase.getId() + ". Case type: " + TcmService.caseTypesMapTR.get(testCase.getTypeId()));
+        tcmTestCase.setPreConditions(setNotNullLine(testCase.getCustomField("preconds")).replaceAll("\r", "\\\\n")
+                .replaceAll("\n", "").replace("\"","\\\""));
         tcmTestCase.setPostConditions("");
         tcmTestCase.setAttachments(setNotNullArray(attachments));
-        tcmTestCase.setCustomFields(customFields);
+        tcmTestCase.setCustomFields(setNotNullArray(customFields));
 
         ObjectMapper mapper = new ObjectMapper();
         try {
             stepsAsString = mapper.writeValueAsString(steps);
-            customFieldsAsString = mapper.writeValueAsString(customFields);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -97,8 +74,7 @@ public class TcmTestCaseService {
 
     private String setNotNullLine(String line) {
         if (line != null)
-            return line.replaceAll("\r", "\\\\n")
-                    .replaceAll("\n", "").replace("\"","\\\"");
+            return line;
         else return "";
     }
 

@@ -15,7 +15,7 @@ public class TestCasePojo {
     private String postConditions;
     private ArrayList<Step> steps;
     private ArrayList<Object> attachments;
-    private ArrayList<CustomFieldCase> customFields;
+    private ArrayList<Object> customFields;
 
     public String getTitle() {
         return title;
@@ -101,11 +101,11 @@ public class TestCasePojo {
         this.attachments = attachments;
     }
 
-    public ArrayList<CustomFieldCase> getCustomFields() {
+    public ArrayList<Object> getCustomFields() {
         return customFields;
     }
 
-    public void setCustomFields(ArrayList<CustomFieldCase> customFields) {
+    public void setCustomFields(ArrayList<Object> customFields) {
         this.customFields = customFields;
     }
 }

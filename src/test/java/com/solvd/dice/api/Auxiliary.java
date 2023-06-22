@@ -5,11 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.codepine.api.testrail.model.Case;
-import com.codepine.api.testrail.model.CaseType;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
-import com.solvd.dice.api.dataSuite.Tabs.Field;
-import com.solvd.dice.api.dataSuite.Tabs.SettingsData;
 import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
 import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
 import com.solvd.dice.api.service.ApiTestRail;
@@ -23,7 +20,6 @@ import org.testng.annotations.Test;
 public class Auxiliary {
 
     public void importSuite(int trSuiteId, List<Suite> suitesTR, TestSuite[] tcmData) throws IOException {
-
         ApiTestRail apiTestRail = new ApiTestRail();
         DataSuiteService dataSuiteService = new DataSuiteService();
         TcmService tcmService = new TcmService();
@@ -35,9 +31,9 @@ public class Auxiliary {
 
         List<Section> sectionsTR = apiTestRail.getSections(trSuiteId);
         ArrayList<TestSuite> sectionsTcm = dataSuiteService.getSubSuites(tcmData, tcmSuiteId);
-        ArrayList<Section> notPresentSections = tcmService.getNotPresentSections(sectionsTcm, sectionsTR);
 
-        tcmService.createNotPresentSubSuites(notPresentSections, tcmSuiteId);
+        ArrayList<Section> notPresentSections = tcmService.getNotPresentSections(sectionsTcm, sectionsTR);
+        tcmService.createNotPresentSubSuites(notPresentSections, tcmSuiteId, sectionsTcm);
         if (notPresentSections.size() != 0)
             tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
@@ -47,7 +43,7 @@ public class Auxiliary {
         List<TestCase> testCasesTcm = dataSuiteService.getTestCases(tcmData, tcmSuiteId);
 
         ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(testCasesTcm, casesTR);
-        tcmService.createNotPresentCases(notPresentCases, tcmData, tcmSuiteId);
+        tcmService.createNotPresentCases(notPresentCases, sectionsTcm);
     }
 
     @Test
@@ -56,20 +52,17 @@ public class Auxiliary {
         DataSuiteService dataSuiteService = new DataSuiteService();
         TcmService tcmService = new TcmService();
 
-        /**   CONFIGURING SETTINGS **/
-
-        SettingsData settingsData = dataSuiteService.getTabsData();
-        int tabId = dataSuiteService.getPropertiesTabId(settingsData);
-        List<CaseType> caseTypes = apiTestRail.getCaseTypes();
-        tcmService.createFields(dataSuiteService.getFields(settingsData), caseTypes, tabId);
-
         /**   CREATING NOT PRESENT SUITES **/
+
+        tcmService.setCaseTypes(apiTestRail.getCaseTypes());
 
         List<Suite> suitesTR = apiTestRail.getSuites();
         TestSuite[] tcmData = dataSuiteService.getTestData(); //getting data from TCM
         ArrayList<String> suiteNamesTcm = dataSuiteService.getSuiteTitles(tcmData);
+
         ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuites(suiteNamesTcm, suitesTR);
         tcmService.createNotPresentSuites(notPresentSuiteTitles);
+
 
         if (notPresentSuiteTitles.size() !=0 ) tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
@@ -79,6 +72,6 @@ public class Auxiliary {
         importSuite(8, suitesTR, tcmData);
         importSuite(9, suitesTR, tcmData);
  */
-        importSuite(5, suitesTR, tcmData);
+        importSuite(12, suitesTR, tcmData);
     }
 }

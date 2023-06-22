@@ -3,13 +3,9 @@ package com.solvd.dice.api.service;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import com.codepine.api.testrail.model.Section;
-import com.solvd.dice.api.dataSuite.Tabs.Field;
-import com.solvd.dice.api.dataSuite.Tabs.Tab;
-import com.solvd.dice.api.dataSuite.Tabs.SettingsData;
 import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
 import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
 import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
@@ -18,41 +14,12 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class DataSuiteService {
 
-    public static int tcmId = 0;
-    public static HashMap<Long, String> casesParentsMapTcm = new HashMap<>();
-    public static HashMap<Long, String> sectionParentsMapTcm = new HashMap<>();
-
-    public static Field[] fields;
-
-
     public TestSuite[] getTestData() throws IOException {
         ApiTcm apiTcm = new ApiTcm();
         apiTcm.testGetAllTestCases();
 
         DataSuite dataSuite = apiTcm.dataSuite;
         return dataSuite.getTest().getTestSuites();
-    }
-
-    public SettingsData getTabsData() throws IOException {
-        ApiTcm apiTcm = new ApiTcm();
-        apiTcm.createToken();
-        apiTcm.testGetAllCustomFields();
-
-        return apiTcm.settingsData;
-    }
-
-    public int getPropertiesTabId(SettingsData settingsData){
-        Tab[] tabs = settingsData.getSettings().getTabs();
-        for (Tab tab : tabs){
-            if (tab.getName().contains("Properties"))
-                return tab.getId();
-        }
-        return 0;
-    }
-
-    public Field[] getFields(SettingsData settingsData){
-        fields = settingsData.getSettings().getFields();
-        return fields;
     }
 
     public ArrayList<String> getSuiteTitles(TestSuite[] tcmData) {
@@ -64,37 +31,42 @@ public class DataSuiteService {
     }
 
     public ArrayList<TestSuite> getSubSuites(TestSuite[] tcmData, int tcmSuiteId) {
-        ArrayList<TestSuite> suiteNames = new ArrayList<>();
+        ArrayList<TestSuite> suites = new ArrayList<>();
         for (TestSuite sui : tcmData) {
             if (sui.getId().intValue() == tcmSuiteId) {
                 TestSuite[] subSuites2 = sui.getChildTestSuites();
                 for (TestSuite sub : subSuites2) {
-                    suiteNames.add(sub);
-                    sectionParentsMapTcm.put(sub.getId(), sui.getTitle());
-                    suiteNames.addAll(getSubSuites(sub));
+                    suites.add(sub);
+                    sub.setParentSuite(sui);
+                    suites.addAll(getSubSuites(sub));
                 }
             }
         }
-        return suiteNames;
+        return suites;
     }
 
     private ArrayList<TestSuite> getSubSuites(TestSuite sub) {
-        ArrayList<TestSuite> suiteNames = new ArrayList<>();
+        ArrayList<TestSuite> suites = new ArrayList<>();
         TestSuite[] subSuites = sub.getChildTestSuites();
         for (TestSuite sub2 : subSuites) {
-            suiteNames.add(sub2);
-            sectionParentsMapTcm.put(sub2.getId(), sub.getTitle());
-            suiteNames.addAll(getSubSuites(sub2));
+            suites.add(sub2);
+            sub2.setParentSuite(sub);
+            suites.addAll(getSubSuites(sub2));
         }
-        return suiteNames;
+        return suites;
     }
 
-    public ArrayList<String> getSubSuiteTitles(ArrayList<TestSuite> suites) {
-        ArrayList<String> suiteTitles = new ArrayList<>();
-        for (TestSuite sub : suites) {
-            suiteTitles.add(sub.getTitle());
+    public void getSuitesPath(ArrayList<TestSuite> suites) {
+        for (TestSuite sui : suites) {
+            String path = "";
+            TestSuite originalSuite = sui;
+            while (sui.getParentSuite() != null)
+            {
+                path = path + " < " + sui.getParentSuite().getTitle();
+                sui = sui.getParentSuite();
+            }
+            originalSuite.setPath(path);
         }
-        return suiteTitles;
     }
 
     public List<TestCase> getTestCases(TestSuite[] tcmData, int tcmSuiteId) {
@@ -103,7 +75,7 @@ public class DataSuiteService {
             if (sui.getId().intValue() == tcmSuiteId) {
                 TestCase[] cases = sui.getTestCases();
                 for (TestCase cs : cases) {
-                    casesParentsMapTcm.put(cs.getId(), sui.getTitle());
+                    cs.setParentSuite(sui);
                 }
                 testCases.addAll(Arrays.asList(cases));
                 testCases.addAll(getTestCases(sui));
@@ -118,7 +90,7 @@ public class DataSuiteService {
             for (TestSuite sub : subSuites) {
                 TestCase[] cases = sub.getTestCases();
                 for (TestCase cs : cases) {
-                    casesParentsMapTcm.put(cs.getId(), sub.getTitle());
+                    cs.setParentSuite(sub);
                 }
                 testCases.addAll(Arrays.asList(cases));
                 testCases.addAll(getTestCases(sub));
@@ -126,56 +98,29 @@ public class DataSuiteService {
         return testCases;
     }
 
-    public List<String> getTestCaseTitles(List<TestCase> cases) {
-        ArrayList<String> caseTitles = new ArrayList<>();
-        for (TestCase css : cases) {
-            caseTitles.add(css.getTitle());
+    public void getCasesPath(List<TestCase> cases) {
+        for (TestCase cs : cases) {
+            String path = cs.getParentSuite().getTitle() + cs.getParentSuite().getPath();
+            cs.setPath(path);
         }
-        return caseTitles;
     }
 
     public int getSuiteIdByTitle(TestSuite[] tcmData, String title) {
         Long css = 0L;
         for (TestSuite sui : tcmData) {
-            if (sui.getTitle().contains(title))
+            if (sui.getTitle().equals(title))
                 css = sui.getId();
         }
-        int suiteId = Math.toIntExact(css);
-        return suiteId;
+        return Math.toIntExact(css);
     }
 
-    public int getSectionId(TestSuite[] tcmData, int tcmSuiteId, Section se) {
-        String title = TcmService.sectionsMapTR.get(se.getId()).getName();
-        for (TestSuite sui : tcmData) {
-            if (sui.getId().intValue() == tcmSuiteId) {
-                TestSuite[] subSuites = sui.getChildTestSuites();
-                String parentName;
-                if (TcmService.sectionsMapTR.get(se.getId()).getParentId() != null)
-                    parentName = TcmService.sectionsMapTR.get(TcmService.sectionsMapTR.get(se.getId()).getParentId()).getName();
-                else parentName = TcmService.suitesMapTR.get(TcmService.sectionsMapTR.get(se.getId()).getSuiteId()).getName();
-                for (TestSuite sub : subSuites) {
-                    if (sub.getTitle().contains(title) && parentName.contains(sectionParentsMapTcm.get(sub.getId()))) {
-                        tcmId = Math.toIntExact(sub.getId());
-                    } else getSectionId(sub, se);
-                }
-            }
+    public int getSectionId(ArrayList<TestSuite> sectionsTcm, Section se) {
+        for (TestSuite sui : sectionsTcm) {
+            boolean containsName = se.getName().equals(sui.getTitle());
+            boolean containsParent = TcmService.sectionsPathTR.get(se.getId()).equals(sui.getPath());
+            if (containsName && containsParent)
+                return Math.toIntExact(sui.getId());
         }
-        return tcmId;
-    }
-
-    private int getSectionId(TestSuite sub2, Section se) {
-        String title = TcmService.sectionsMapTR.get(se.getId()).getName();
-        TestSuite[] subSuites3 = sub2.getChildTestSuites();
-        for (TestSuite sub3 : subSuites3) {
-            String parentName;
-            if (TcmService.sectionsMapTR.get(se.getId()).getParentId() != null)
-                parentName = TcmService.sectionsMapTR.get(TcmService.sectionsMapTR.get(se.getId()).getParentId()).getName();
-            else parentName = TcmService.suitesMapTR.get(TcmService.sectionsMapTR.get(se.getId()).getSuiteId()).getName();
-            if (sub3.getTitle().contains(title) && parentName.contains(sectionParentsMapTcm.get(sub3.getId()))){
-                tcmId = Math.toIntExact(sub3.getId());
-            }
-            else getSectionId(sub3, se);
-        }
-        return tcmId;
+        return 0;
     }
 }

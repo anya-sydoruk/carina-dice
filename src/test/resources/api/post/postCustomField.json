@@ -1,9 +1,0 @@
-{
-   "type":"CUSTOM",
-   "tabId":"${tabId}",
-   "name":"${name}",
-   "enabled":true,
-   "description":"",
-   "dataType":"${dataType}",
-   "value": ${value}
-}
