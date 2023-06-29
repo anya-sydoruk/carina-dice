@@ -1,6 +1,6 @@
 package com.solvd.dice.api.service;
 
-import java.io.IOException;
+import java.io.*;
 import java.util.*;
 
 import com.codepine.api.testrail.model.Case;
@@ -21,6 +21,7 @@ public class TcmService {
     public static HashMap<Integer, Section> sectionsMapTR = new HashMap<>();
     public static HashMap<Integer, String> sectionsPathTR = new HashMap<>();
     public static HashMap<Integer, String> casesPathTR = new HashMap<>();
+    public static String allCases = "";
 
     public void setCaseTypes(List<CaseType> caseTypes){
         for (CaseType ct : caseTypes) {
@@ -67,11 +68,8 @@ public class TcmService {
     }
 
     public ArrayList<Section> getNotPresentSections(ArrayList<TestSuite> sectionsTcm, List<Section> sectionsTR) {
-        DataSuiteService dataSuiteService = new DataSuiteService();
         ArrayList<Section> notPresentSectionTitles = new ArrayList<>();
-
         setSectionsPathTr(sectionsTR);
-        dataSuiteService.getSuitesPath(sectionsTcm);
 
         for (Section se : sectionsTR) {
             boolean contains = false;
@@ -119,12 +117,16 @@ public class TcmService {
         }
     }
 
-    public void createNotPresentSubSuites(List<Section> notPresentSections, int tcmSuiteId, ArrayList<TestSuite> sectionsTcm) throws IOException {
+    public void createNotPresentSubSuites(List<Section> notPresentSections, int tcmSuiteId) throws IOException {
         DataSuiteService dataSuiteService = new DataSuiteService();
-        TestSuite[] tcmData;
-        if (notPresentSections.size() != 0) {
-            tcmData = dataSuiteService.getTestData();} //updating data from TCM if there are any changes
         ApiTcm api = new ApiTcm();
+        TestSuite[] tcmData;
+        ArrayList<TestSuite> sectionsTcm = new ArrayList<>();
+        if (notPresentSections.size() != 0) {
+            tcmData = dataSuiteService.getTestData();
+            sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
+            //dataSuiteService.getSuitesPath(sectionsTcm); //updating data from TCM if there are any changes
+        }
         int depthCount = 0;
         for (Section se : notPresentSections) {
             if (se.getDepth() > depthCount) depthCount = se.getDepth(); //getting max section depth
@@ -142,10 +144,9 @@ public class TcmService {
             if (se.getDepth() > 0) {
                 for (int i = 1; i <= depthCount; i++) {
                     if (se.getDepth() == i) {
-                        if (notPresentSections.size() != 0){
-                            tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
-                            dataSuiteService.getSubSuites(tcmData, tcmSuiteId);
-                        }
+                        tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
+                        sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
+                        //dataSuiteService.getSuitesPath(sectionsTcm);
                         TestSuitePojo tcmTestSubSuite = new TestSuitePojo();
                         tcmTestSubSuite.setTitle(se.getName());
                         tcmTestSubSuite.setDescription(setNotNullLine(se.getDescription()));
@@ -167,6 +168,35 @@ public class TcmService {
             TestCasePojo tcmCase = setup.setTcmTestCaseTest(css, tcmSectionId);
             api.testCreateTestCase(tcmCase);
         }
+    }
+
+    public void setCasesRelation(List<TestCase> testCasesTcm, List<Case> testCasesTR) {
+        DataSuiteService dataSuiteService = new DataSuiteService();
+        dataSuiteService.getCasesPath(testCasesTcm);
+        Long tcmCaseId = 0L;
+        try {
+            File file = new File("src/test/resources/cases.csv");
+            BufferedWriter writer = new BufferedWriter(new FileWriter(file));
+            String header = "TestRail ID,TCM ID\n";
+            if (!allCases.contains(header))
+                allCases = header + allCases;
+            for (Case cs : testCasesTR) {
+                for (TestCase tcm : testCasesTcm) {
+                    boolean containsName = cs.getTitle().equals(tcm.getTitle());
+                    boolean containsParent = TcmService.casesPathTR.get(cs.getId()).equals(tcm.getPath());
+                    if (containsName && containsParent)
+                        tcmCaseId = tcm.getId();
+                }
+                allCases = allCases + cs.getId() + "," + tcmCaseId + "\n";
+            }
+            writer.write(allCases);
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        sectionsMapTR.clear(); //clearing maps for next suite
+        sectionsPathTR.clear();
+        casesPathTR.clear();
     }
 
     private String setNotNullLine(String line) {

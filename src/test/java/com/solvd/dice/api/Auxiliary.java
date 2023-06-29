@@ -30,10 +30,10 @@ public class Auxiliary {
         /**   CREATING SECTIONS **/
 
         List<Section> sectionsTR = apiTestRail.getSections(trSuiteId);
-        ArrayList<TestSuite> sectionsTcm = dataSuiteService.getSubSuites(tcmData, tcmSuiteId);
+        ArrayList<TestSuite> sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
 
         ArrayList<Section> notPresentSections = tcmService.getNotPresentSections(sectionsTcm, sectionsTR);
-        tcmService.createNotPresentSubSuites(notPresentSections, tcmSuiteId, sectionsTcm);
+        tcmService.createNotPresentSubSuites(notPresentSections, tcmSuiteId);
         if (notPresentSections.size() != 0)
             tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
@@ -43,7 +43,16 @@ public class Auxiliary {
         List<TestCase> testCasesTcm = dataSuiteService.getTestCases(tcmData, tcmSuiteId);
 
         ArrayList<Case> notPresentCases = tcmService.getNotPresentCases(testCasesTcm, casesTR);
+        sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
         tcmService.createNotPresentCases(notPresentCases, sectionsTcm);
+
+        /**   WRITING DATA INTO FILE **/
+
+        if (notPresentCases.size() != 0)
+            tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
+        dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
+        testCasesTcm = dataSuiteService.getTestCases(tcmData, tcmSuiteId);
+        tcmService.setCasesRelation(testCasesTcm, casesTR);
     }
 
     @Test
@@ -63,15 +72,12 @@ public class Auxiliary {
         ArrayList<Suite> notPresentSuiteTitles = tcmService.getNotPresentSuites(suiteNamesTcm, suitesTR);
         tcmService.createNotPresentSuites(notPresentSuiteTitles);
 
-
-        if (notPresentSuiteTitles.size() !=0 ) tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
+        if (notPresentSuiteTitles.size() != 0)
+            tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
         /**   IMPORTING SUITES **/
-/*
-        importSuite(7, suitesTR, tcmData);
-        importSuite(8, suitesTR, tcmData);
-        importSuite(9, suitesTR, tcmData);
- */
-        importSuite(12, suitesTR, tcmData);
+
+        for (Suite suite : suitesTR)
+            importSuite(suite.getId(), suitesTR, tcmData);
     }
 }

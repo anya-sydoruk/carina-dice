@@ -30,7 +30,13 @@ public class DataSuiteService {
         return suiteNames;
     }
 
-    public ArrayList<TestSuite> getSubSuites(TestSuite[] tcmData, int tcmSuiteId) {
+    public ArrayList<TestSuite> getSubSuitesUpdatePath(TestSuite[] tcmData, int tcmSuiteId) {
+        ArrayList<TestSuite> suites = getSubSuites(tcmData, tcmSuiteId);
+        getSuitesPath(suites);
+        return suites;
+    }
+
+    private ArrayList<TestSuite> getSubSuites(TestSuite[] tcmData, int tcmSuiteId) {
         ArrayList<TestSuite> suites = new ArrayList<>();
         for (TestSuite sui : tcmData) {
             if (sui.getId().intValue() == tcmSuiteId) {
@@ -56,7 +62,7 @@ public class DataSuiteService {
         return suites;
     }
 
-    public void getSuitesPath(ArrayList<TestSuite> suites) {
+    private void getSuitesPath(ArrayList<TestSuite> suites) {
         for (TestSuite sui : suites) {
             String path = "";
             TestSuite originalSuite = sui;
@@ -121,6 +127,6 @@ public class DataSuiteService {
             if (containsName && containsParent)
                 return Math.toIntExact(sui.getId());
         }
-        return 0;
+        return -1;
     }
 }
