@@ -121,11 +121,9 @@ public class TcmService {
         DataSuiteService dataSuiteService = new DataSuiteService();
         ApiTcm api = new ApiTcm();
         TestSuite[] tcmData;
-        ArrayList<TestSuite> sectionsTcm = new ArrayList<>();
         if (notPresentSections.size() != 0) {
             tcmData = dataSuiteService.getTestData();
-            sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
-            //dataSuiteService.getSuitesPath(sectionsTcm); //updating data from TCM if there are any changes
+            dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId); //updating data from TCM if there are any changes
         }
         int depthCount = 0;
         for (Section se : notPresentSections) {
@@ -145,8 +143,7 @@ public class TcmService {
                 for (int i = 1; i <= depthCount; i++) {
                     if (se.getDepth() == i) {
                         tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
-                        sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
-                        //dataSuiteService.getSuitesPath(sectionsTcm);
+                        ArrayList<TestSuite> sectionsTcm = dataSuiteService.getSubSuitesUpdatePath(tcmData, tcmSuiteId);
                         TestSuitePojo tcmTestSubSuite = new TestSuitePojo();
                         tcmTestSubSuite.setTitle(se.getName());
                         tcmTestSubSuite.setDescription(setNotNullLine(se.getDescription()));

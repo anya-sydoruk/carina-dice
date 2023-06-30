@@ -5,13 +5,14 @@ import java.util.List;
 import com.codepine.api.testrail.TestRail;
 import com.codepine.api.testrail.model.*;
 
+import com.zebrunner.carina.utils.R;
 import org.testng.Assert;
 
 public class ApiTestRail {
 
-    private final String END_POINT = "https://modiusqa.testrail.net";
-    private final String USERNAME = "akaravikou@solvd.com";
-    private final String PASSWORD = "OsfdBz0Acymkokfg.yia-egy/c.NGEH1tiEx4s2L/";
+    private final String END_POINT = R.CONFIG.get("testrail_url");
+    private final String USERNAME = R.CONFIG.get("testrail_username");
+    private final String PASSWORD = R.CONFIG.get("testrail_password");
 
     public List<Case> getTestCases(int suiteId) {
         TestRail testRail = TestRail.builder(END_POINT, USERNAME, PASSWORD).build();

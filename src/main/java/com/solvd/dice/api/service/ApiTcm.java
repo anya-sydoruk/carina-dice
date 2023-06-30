@@ -11,6 +11,7 @@ import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
 import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
+import com.zebrunner.carina.utils.R;
 import io.restassured.response.ResponseBody;
 
 import org.testng.Assert;
@@ -23,7 +24,9 @@ public class ApiTcm implements IAbstractTest {
 
     @BeforeMethod
     public void createToken() {
+        String accessToken = R.CONFIG.get("access_token");
         GetTokenMethod api = new GetTokenMethod();
+        api.setToken(accessToken);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 200, "Incorrect response.");
         ResponseBody body = api.callAPI().body();
