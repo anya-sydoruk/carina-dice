@@ -24,9 +24,8 @@ public class ApiTcm implements IAbstractTest {
 
     @BeforeMethod
     public void createToken() {
-        String accessToken = R.CONFIG.get("access_token");
         GetTokenMethod api = new GetTokenMethod();
-        api.setToken(accessToken);
+        api.setToken(R.CONFIG.get("access_token"));
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 200, "Incorrect response.");
         ResponseBody body = api.callAPI().body();

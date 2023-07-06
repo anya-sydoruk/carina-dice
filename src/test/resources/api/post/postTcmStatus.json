@@ -1,0 +1,21 @@
+{
+   "items":[
+      {
+         "testCaseIds": ${testCaseIds},
+         "status":{
+            "id":"${statusId}"
+         },
+         "issueType":null,
+         "issueId":null,
+         "details":null,
+         "automationLaunchId":"${automationLaunchId}",
+         "automationExecutionId":"${automationExecutionId}",
+         "attachments":[
+
+         ],
+         "configurationOptions":[
+
+         ]
+      }
+   ]
+}
