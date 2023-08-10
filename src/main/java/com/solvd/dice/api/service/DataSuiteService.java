@@ -6,9 +6,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.codepine.api.testrail.model.Section;
-import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
-import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.dataSuite.launch.Result;
+import com.solvd.dice.api.dataSuite.launch.TestCases;
+import com.solvd.dice.api.dataSuite.testSuites.DataSuite;
+import com.solvd.dice.api.dataSuite.testSuites.TestCase;
+import com.solvd.dice.api.dataSuite.testSuites.TestSuite;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -16,7 +18,7 @@ public class DataSuiteService {
 
     public TestSuite[] getTestData() throws IOException {
         ApiTcm apiTcm = new ApiTcm();
-        apiTcm.testGetAllTestCases();
+        apiTcm.getAllTestCases();
 
         DataSuite dataSuite = apiTcm.dataSuite;
         return dataSuite.getTest().getTestSuites();
@@ -66,8 +68,7 @@ public class DataSuiteService {
         for (TestSuite sui : suites) {
             String path = "";
             TestSuite originalSuite = sui;
-            while (sui.getParentSuite() != null)
-            {
+            while (sui.getParentSuite() != null) {
                 path = path + " < " + sui.getParentSuite().getTitle();
                 sui = sui.getParentSuite();
             }
@@ -93,13 +94,13 @@ public class DataSuiteService {
     private List<TestCase> getTestCases(TestSuite sui) {
         List<TestCase> testCases = new ArrayList<>();
         TestSuite[] subSuites = sui.getChildTestSuites();
-            for (TestSuite sub : subSuites) {
-                TestCase[] cases = sub.getTestCases();
-                for (TestCase cs : cases) {
-                    cs.setParentSuite(sub);
-                }
-                testCases.addAll(Arrays.asList(cases));
-                testCases.addAll(getTestCases(sub));
+        for (TestSuite sub : subSuites) {
+            TestCase[] cases = sub.getTestCases();
+            for (TestCase cs : cases) {
+                cs.setParentSuite(sub);
+            }
+            testCases.addAll(Arrays.asList(cases));
+            testCases.addAll(getTestCases(sub));
         }
         return testCases;
     }
@@ -128,5 +129,18 @@ public class DataSuiteService {
                 return Math.toIntExact(sui.getId());
         }
         return -1;
+    }
+
+    public List<TestCases> getLaunchResults(int testRunId) throws IOException {
+        ApiTcm apiTcm = new ApiTcm();
+        apiTcm.getLaunchResults(testRunId);
+        List<TestCases> testCasesResults = new ArrayList<>();
+        for (Result res : apiTcm.result) {
+            List<TestCases> casesTemp = new ArrayList<>(List.of(res.getTestCases()));
+            for (TestCases tc : casesTemp)
+                tc.setResultStatus(res.getStatus());
+            testCasesResults.addAll(casesTemp);
+        }
+        return testCasesResults;
     }
 }

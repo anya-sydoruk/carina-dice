@@ -7,8 +7,9 @@ import com.codepine.api.testrail.model.Case;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
 import com.codepine.api.testrail.model.CaseType;
-import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.dataSuite.testSuites.TestCase;
+import com.solvd.dice.api.dataSuite.testSuites.TestSuite;
+import com.solvd.dice.api.tcmResult.TcmCaseResult;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +24,7 @@ public class TcmService {
     public static HashMap<Integer, String> casesPathTR = new HashMap<>();
     public static String allCases = "";
 
-    public void setCaseTypes(List<CaseType> caseTypes){
+    public void setCaseTypes(List<CaseType> caseTypes) {
         for (CaseType ct : caseTypes) {
             caseTypesMapTR.put(ct.getId(), ct.getName());
         }
@@ -113,7 +114,7 @@ public class TcmService {
             tcmTestSuite.setParentSuiteId(0);
 
             ApiTcm api = new ApiTcm();
-            api.testCreateTestSuite(tcmTestSuite);
+            api.createTestSuite(tcmTestSuite);
         }
     }
 
@@ -135,7 +136,7 @@ public class TcmService {
                 tcmTestSubSuite.setTitle(se.getName());
                 tcmTestSubSuite.setDescription(setNotNullLine(se.getDescription()));
                 tcmTestSubSuite.setParentSuiteId(tcmSuiteId);
-                api.testCreateTestSuite(tcmTestSubSuite);
+                api.createTestSuite(tcmTestSubSuite);
             }
         }
         for (Section se : notPresentSections) {
@@ -149,7 +150,7 @@ public class TcmService {
                         tcmTestSubSuite.setDescription(setNotNullLine(se.getDescription()));
                         int tcmParentId = dataSuiteService.getSectionId(sectionsTcm, sectionsMapTR.get(se.getParentId()));
                         tcmTestSubSuite.setParentSuiteId(tcmParentId);
-                        api.testCreateTestSuite(tcmTestSubSuite);
+                        api.createTestSuite(tcmTestSubSuite);
                     }
                 }
             }
@@ -163,7 +164,7 @@ public class TcmService {
         for (Case css : notPresentCases) {
             int tcmSectionId = dataSuiteService.getSectionId(sectionsTcm, sectionsMapTR.get(css.getSectionId()));
             TestCasePojo tcmCase = setup.setTcmTestCaseTest(css, tcmSectionId);
-            api.testCreateTestCase(tcmCase);
+            api.createTestCase(tcmCase);
         }
     }
 
@@ -196,10 +197,60 @@ public class TcmService {
         casesPathTR.clear();
     }
 
+    public Long getIdFromFile(String testRailId) {
+        try {
+            File file = new File("src/test/resources/cases.csv");
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line = "";
+            String[] tempArr;
+
+            while ((line = br.readLine()) != null) {
+                tempArr = line.split(",");
+                if (tempArr[0].equals(testRailId)) {
+                    log.info("Id from file: " + tempArr[0] + " - " + tempArr[1]);
+                    return Long.valueOf(tempArr[1]);
+                }
+            }
+            br.close();
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+        return 0L;
+    }
+
+    public List<Integer> groupExecutions(List<TcmCaseResult> allTcmResults) {
+        List<Integer> groupedExec = new ArrayList<>();
+        for (TcmCaseResult res : allTcmResults) {
+            if (!groupedExec.contains(res.getTestExecutionId()))
+                groupedExec.add(res.getTestExecutionId());
+        }
+        return groupedExec;
+    }
+
+    public List<String> groupCasesResultByExecutionId(List<TcmCaseResult> allTcmResults, int executionId) {
+        List<String> groupedCases = new ArrayList<>();
+        for (TcmCaseResult res : allTcmResults) {
+            if (res.getTestExecutionId() == executionId)
+                groupedCases.add(res.getTcmCaseId());
+        }
+        return groupedCases;
+    }
+
+    public TcmCaseResult getCaseResultById(List<TcmCaseResult> allTcmResults, String resId) {
+        for (TcmCaseResult res : allTcmResults)
+            if (res.getTcmCaseId().equals(resId)) return res;
+        return null;
+    }
+
+    public void setTcmStatus(String testRunId, List<String> groupedCases, TcmCaseResult tcmCaseResult) {
+        ApiTcm api = new ApiTcm();
+        api.setTcmStatus(testRunId, groupedCases, tcmCaseResult);
+    }
+
     private String setNotNullLine(String line) {
         if (line != null)
             return line;
         else return "";
     }
-
 }

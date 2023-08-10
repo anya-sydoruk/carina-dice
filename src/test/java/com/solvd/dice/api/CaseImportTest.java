@@ -7,8 +7,8 @@ import java.util.List;
 import com.codepine.api.testrail.model.Case;
 import com.codepine.api.testrail.model.Section;
 import com.codepine.api.testrail.model.Suite;
-import com.solvd.dice.api.dataSuite.TestSuites.TestCase;
-import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.dataSuite.testSuites.TestCase;
+import com.solvd.dice.api.dataSuite.testSuites.TestSuite;
 import com.solvd.dice.api.service.ApiTestRail;
 import com.solvd.dice.api.service.DataSuiteService;
 import com.solvd.dice.api.service.TcmService;
@@ -17,7 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
 
 @Slf4j
-public class Auxiliary {
+public class CaseImportTest {
 
     public void importSuite(int trSuiteId, List<Suite> suitesTR, TestSuite[] tcmData) throws IOException {
         ApiTestRail apiTestRail = new ApiTestRail();
@@ -76,7 +76,6 @@ public class Auxiliary {
             tcmData = dataSuiteService.getTestData(); //updating data from TCM if there are any changes
 
         /**   IMPORTING SUITES **/
-
         for (Suite suite : suitesTR)
             importSuite(suite.getId(), suitesTR, tcmData);
     }

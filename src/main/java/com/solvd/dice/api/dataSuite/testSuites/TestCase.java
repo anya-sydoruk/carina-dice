@@ -1,30 +1,18 @@
-package com.solvd.dice.api.dataSuite.TestSuites;
+package com.solvd.dice.api.dataSuite.testSuites;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class TestSuite {
+public class TestCase {
     public final Long id;
     public final String title;
-    public final TestSuite[] childTestSuites;
-    public final TestCase[] childTestCases;
     public TestSuite parentSuite;
     public String path;
 
     @JsonCreator
-    public TestSuite(@JsonProperty("id") Long id, @JsonProperty("title") String title,
-                     @JsonProperty("childTestSuites")TestSuite[] childTestSuites, @JsonProperty("childTestCases") TestCase[] childTestCases) {
+    public TestCase(@JsonProperty("id") Long id, @JsonProperty("title") String title){
         this.id = id;
         this.title = title;
-        this.childTestSuites = childTestSuites;
-        this.childTestCases = childTestCases;
-    }
-    public TestCase[] getTestCases() {
-        return childTestCases;
-    }
-
-    public TestSuite[] getChildTestSuites() {
-        return childTestSuites;
     }
 
     public Long getId() {
@@ -49,5 +37,12 @@ public class TestSuite {
 
     public String getPath() {
         return path;
+    }
+
+    @Override
+    public String toString() {
+        return "TestCase{" +
+                "title='" + title + '\'' +
+                '}';
     }
 }

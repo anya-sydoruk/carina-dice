@@ -7,8 +7,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.qaprosoft.carina.core.foundation.IAbstractTest;
 import com.solvd.dice.api.*;
-import com.solvd.dice.api.dataSuite.TestSuites.DataSuite;
-import com.solvd.dice.api.dataSuite.TestSuites.TestSuite;
+import com.solvd.dice.api.dataSuite.launch.Result;
+import com.solvd.dice.api.dataSuite.launch.Results;
+import com.solvd.dice.api.dataSuite.testSuites.DataSuite;
+import com.solvd.dice.api.dataSuite.testSuites.TestSuite;
+import com.solvd.dice.api.tcmResult.TcmCaseResult;
 import com.solvd.dice.api.tcmTestCasePojo.TestCasePojo;
 import com.solvd.dice.api.tcmTestCasePojo.TestSuitePojo;
 import com.zebrunner.carina.utils.R;
@@ -21,6 +24,7 @@ public class ApiTcm implements IAbstractTest {
     public static String token = "";
     public DataSuite dataSuite;
     List<TestSuite> suites;
+    List<Result> result;
 
     @BeforeMethod
     public void createToken() {
@@ -33,7 +37,7 @@ public class ApiTcm implements IAbstractTest {
         Assert.assertNotNull(token, "Token missing.");
     }
 
-    public void testGetAllTestCases() throws IOException {
+    public void getAllTestCases() throws IOException {
         GetTestCasesMethod api = new GetTestCasesMethod();
         if (token == "") createToken();
         api.setToken(token);
@@ -49,17 +53,40 @@ public class ApiTcm implements IAbstractTest {
         suites = List.of(dataSuite.getTest().getTestSuites());
     }
 
-    public void testCreateTestCase(TestCasePojo testCase) {
+    public void createTestCase(TestCasePojo testCase) {
         CreateTestCaseMethod api = new CreateTestCaseMethod();
-        api.CreateTestCase(token, testCase);
+        api.createTestCase(token, testCase);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
     }
 
-    public void testCreateTestSuite(TestSuitePojo suite) {
+    public void createTestSuite(TestSuitePojo suite) {
         CreateTestSuiteMethod api = new CreateTestSuiteMethod();
-        api.CreateTestSuite(token, suite);
+        api.createTestSuite(token, suite);
         int code = api.callAPI().getStatusCode();
         Assert.assertEquals(code, 201, "Incorrect response");
+    }
+
+    public void getLaunchResults(int testRunId) throws IOException {
+        GetTcmLaunchMethod api = new GetTcmLaunchMethod();
+        if (token == "") createToken();
+        api.getTcmLaunch(token, testRunId);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 200, "Incorrect response.");
+        String bodyString = api.callAPI().body().asString();
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.ACCEPT_SINGLE_VALUE_AS_ARRAY, true);
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        Results results = mapper.readValue(bodyString, Results.class);
+        result = List.of(results.getResult());
+    }
+
+    public void setTcmStatus(String testRunId, List<String> groupedCases, TcmCaseResult tcmCaseResult) {
+        SetTcmStatusMethod api = new SetTcmStatusMethod();
+        if (token == "") createToken();
+        api.setTcmStatus(token, testRunId, groupedCases, tcmCaseResult);
+        int code = api.callAPI().getStatusCode();
+        Assert.assertEquals(code, 204, "Incorrect response");
     }
 }

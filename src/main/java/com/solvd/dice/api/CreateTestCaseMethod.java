@@ -7,14 +7,17 @@ import com.zebrunner.carina.api.AbstractApiMethodV2;
 import com.zebrunner.carina.api.annotation.Endpoint;
 import com.zebrunner.carina.api.annotation.RequestTemplatePath;
 import com.zebrunner.carina.api.http.HttpMethodType;
+import com.zebrunner.carina.utils.R;
 
 import static com.solvd.dice.api.service.TcmTestCaseService.stepsAsString;
 
-@Endpoint(url = "https://solvdinternal.zebrunner.com/api/tcm/v1/test-cases?projectId=42", methodType = HttpMethodType.POST)
+@Endpoint(url = "${api_url}/api/tcm/v1/test-cases?projectId=${project_id}", methodType = HttpMethodType.POST)
 @RequestTemplatePath(path = "api/post/postTcmTestCase.json")
 public class CreateTestCaseMethod extends AbstractApiMethodV2 {
 
-    public void CreateTestCase(String token, TestCasePojo testCase) {
+    public void createTestCase(String token, TestCasePojo testCase) {
+        replaceUrlPlaceholder("api_url", R.CONFIG.get("tcm_url"));
+        replaceUrlPlaceholder("project_id", R.CONFIG.get("tcm_project_id"));
         setHeaders("Authorization=Bearer " + token);
         addProperty("title", testCase.getTitle());
         addProperty("testSuiteId", testCase.getTestSuiteId());
