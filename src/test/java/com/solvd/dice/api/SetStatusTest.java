@@ -1,15 +1,15 @@
 package com.solvd.dice.api;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import com.solvd.dice.api.dataSuite.launch.TestCases;
 import com.solvd.dice.api.service.DataSuiteService;
 import com.solvd.dice.api.service.TcmService;
 import com.solvd.dice.api.tcmResult.TcmCaseResult;
 import lombok.extern.slf4j.Slf4j;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 @Slf4j
 public class SetStatusTest {
@@ -25,7 +25,6 @@ public class SetStatusTest {
         List<TcmCaseResult> allTcmResults = new ArrayList<>();
 
         for (TestCases cr : casesResults) {
-            log.info("TestExecutionId : " + cr.getTestExecutionId() + ". TcmType : " + cr.getTcmType() + ". Result status : " + cr.getResultStatus());
             TcmCaseResult tcmCaseResult = new TcmCaseResult();
             tcmCaseResult.setAutomationLaunchId(launchId);
             tcmCaseResult.setTestExecutionId(Math.toIntExact(cr.getTestExecutionId()));
@@ -33,14 +32,13 @@ public class SetStatusTest {
             tcmCaseResult.setTcmCaseId(String.valueOf(tcmService.getIdFromFile(cr.getTestCaseId())));
             tcmCaseResult.setStatusId(tcmCaseResult.getStatusIdByName(cr.getResultStatus()));
             allTcmResults.add(tcmCaseResult);
-            log.warn(tcmCaseResult.toString());
         }
+
         List<Integer> groupedExec = tcmService.groupExecutions(allTcmResults);
-        System.out.println("");
         for (Integer exec : groupedExec) {
             List<String> groupedCases = tcmService.groupCasesResultByExecutionId(allTcmResults, exec);
             TcmCaseResult tcmCaseResult = tcmService.getCaseResultById(allTcmResults, groupedCases.get(0));
-            log.warn("Exec Id " + exec + " : " + groupedCases + " " + tcmCaseResult.getStatusId() + " " + tcmCaseResult.getAutomationLaunchId());
+            log.warn("Cases: " + groupedCases + ". Status Id: " + tcmCaseResult.getStatusId() + ". Test Execution: " + exec + ". Automation Launch: " + tcmCaseResult.getAutomationLaunchId());
             tcmService.setTcmStatus(testRunId, groupedCases, tcmCaseResult);
         }
     }
